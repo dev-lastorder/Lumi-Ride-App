@@ -3,7 +3,9 @@
 
 import ChatHeader from "@/src/components/common/Chat /ChatHeader";
 import ChatInput from "@/src/components/common/Chat /ChatInput";
-import ChatMessageList, { ChatMessage } from "@/src/components/common/Chat /ChatMessageList";
+import ChatMessageList, {
+  ChatMessage,
+} from "@/src/components/common/Chat /ChatMessageList";
 import GradientBackground from "@/src/components/common/GradientBackground";
 import Button from "@/src/components/ui/Button ";
 import CustomText from "@/src/components/ui/Text";
@@ -33,25 +35,30 @@ import {
   convertWebSocketMessage,
   IReceivedMessage,
 } from "@/src/services/chatApi";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DriverChatScreen = () => {
   const params = useLocalSearchParams();
 
-
   const currentUser = useAppSelector(selectUser);
   const driverId = currentUser?.id;
 
-  const onGoingRideData = useAppSelector((state: RootState) => state.onGoingRide.onGoingRideData);
+  const onGoingRideData = useAppSelector(
+    (state: RootState) => state.onGoingRide.onGoingRideData
+  );
   const customerId = onGoingRideData?.passengerUser?.id;
-  console.log('🚖 Ongoing ride customer ID:', customerId,driverId);
-  const customerName = params.customerName as string || "Customer";
-  const profileImage = params.profileImage as string || "https://avatar.iran.liara.run/public/48";
+  console.log("🚖 Ongoing ride customer ID:", customerId, driverId);
+  const customerName = (params.customerName as string) || "Customer";
+  const profileImage =
+    (params.profileImage as string) ||
+    "https://avatar.iran.liara.run/public/48";
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [realtimeMessages, setRealtimeMessages] = useState<any[]>([]);
   const [chatBoxId, setChatBoxId] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
-
+  const [keyboardHeight, setKeyboardHeight] = useState(80);
+  const insets = useSafeAreaInsets();
   // Quick reply buttons
   const quickReplies = [
     { id: "1", text: "I'm on my way" },
@@ -60,7 +67,6 @@ const DriverChatScreen = () => {
     { id: "4", text: "Please come to the car" },
     { id: "5", text: "Running a bit late, sorry" },
   ];
-
 
   const {
     data: chatData,
@@ -75,14 +81,11 @@ const DriverChatScreen = () => {
     refetch: refetchMessages,
   } = useGetMessages(
     chatBoxId,
-    isChatInitialized && !!chatBoxId && !chatBoxId?.startsWith('temp-')
+    isChatInitialized && !!chatBoxId && !chatBoxId?.startsWith("temp-")
   );
 
   // 3️⃣ Send message mutation
-  const {
-    mutate: sendMessage,
-    isPending: isSendingMessage,
-  } = useSendMessage();
+  const { mutate: sendMessage, isPending: isSendingMessage } = useSendMessage();
 
   // ============================================
   // Keyboard listeners
@@ -90,11 +93,17 @@ const DriverChatScreen = () => {
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      () => setKeyboardVisible(true)
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+        setKeyboardVisible(true);
+      }
     );
     const keyboardWillHide = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      () => setKeyboardVisible(false)
+      (e) => {
+        setKeyboardHeight(80);
+        setKeyboardVisible(false);
+      }
     );
 
     return () => {
@@ -107,16 +116,19 @@ const DriverChatScreen = () => {
     if (isChatInitialized && chatData?.chatBox) {
       const newChatBoxId = chatData.chatBox.id;
 
-      console.log('✅ Chat initialized');
-      console.log('📦 Chat Box ID:', newChatBoxId);
-      console.log('📦 Initial messages from init:', chatData.messages?.length || 0);
-      console.log('🔍 Is temp chat?', newChatBoxId.startsWith('temp-'));
+      console.log("✅ Chat initialized");
+      console.log("📦 Chat Box ID:", newChatBoxId);
+      console.log(
+        "📦 Initial messages from init:",
+        chatData.messages?.length || 0
+      );
+      console.log("🔍 Is temp chat?", newChatBoxId.startsWith("temp-"));
 
       setChatBoxId(newChatBoxId);
 
       // If this is a REAL chat (not temp), refetch messages
-      if (!newChatBoxId.startsWith('temp-') && refetchMessages) {
-        console.log('🔄 Refetching messages for real chat...');
+      if (!newChatBoxId.startsWith("temp-") && refetchMessages) {
+        console.log("🔄 Refetching messages for real chat...");
         setTimeout(() => {
           refetchMessages();
         }, 500);
@@ -132,7 +144,12 @@ const DriverChatScreen = () => {
       return;
     }
 
-    console.log('🔌 Setting up WebSocket for driver:', driverId, 'customer:', customerId);
+    console.log(
+      "🔌 Setting up WebSocket for driver:",
+      driverId,
+      "customer:",
+      customerId
+    );
 
     const connectWebSocket = async () => {
       try {
@@ -140,56 +157,62 @@ const DriverChatScreen = () => {
 
         if (!isConnected) {
           await chatApi.connectToSocket(driverId);
-          console.log('✅ WebSocket connected');
+          console.log("✅ WebSocket connected");
         } else {
-          console.log('✅ WebSocket already connected');
+          console.log("✅ WebSocket already connected");
         }
       } catch (error) {
-        console.error('❌ Failed to connect WebSocket:', error);
+        console.error("❌ Failed to connect WebSocket:", error);
       }
     };
 
     connectWebSocket();
 
-    const unsubscribeMessages = chatApi.onMessageReceived((wsMessage: IReceivedMessage) => {
-      console.log('📥 Received WebSocket message:', wsMessage);
+    const unsubscribeMessages = chatApi.onMessageReceived(
+      (wsMessage: IReceivedMessage) => {
+        console.log("📥 Received WebSocket message:", wsMessage);
 
-      // ONLY process messages for THIS specific conversation
-      const isRelevantMessage =
-        (wsMessage.sender === customerId && wsMessage.receiver === driverId) ||
-        (wsMessage.sender === driverId && wsMessage.receiver === customerId);
+        // ONLY process messages for THIS specific conversation
+        const isRelevantMessage =
+          (wsMessage.sender === customerId &&
+            wsMessage.receiver === driverId) ||
+          (wsMessage.sender === driverId && wsMessage.receiver === customerId);
 
-      if (isRelevantMessage) {
-        console.log('✅ Message is for this conversation');
-        const chatMessage = convertWebSocketMessage(wsMessage, chatBoxId || undefined);
+        if (isRelevantMessage) {
+          console.log("✅ Message is for this conversation");
+          const chatMessage = convertWebSocketMessage(
+            wsMessage,
+            chatBoxId || undefined
+          );
 
-        setRealtimeMessages((prev) => {
-          if (prev.some((msg) => msg.id === chatMessage.id)) {
-            console.log('⚠️ Duplicate message, skipping');
-            return prev;
-          }
+          setRealtimeMessages((prev) => {
+            if (prev.some((msg) => msg.id === chatMessage.id)) {
+              console.log("⚠️ Duplicate message, skipping");
+              return prev;
+            }
 
-          return [...prev, chatMessage];
-        });
+            return [...prev, chatMessage];
+          });
 
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-      } else {
-        console.log('❌ Message not for this conversation');
+          setTimeout(() => {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }, 100);
+        } else {
+          console.log("❌ Message not for this conversation");
+        }
       }
-    });
+    );
 
     return () => {
-      console.log('🧹 Cleaning up WebSocket listeners');
+      console.log("🧹 Cleaning up WebSocket listeners");
       unsubscribeMessages();
     };
   }, [driverId, customerId, chatBoxId]);
 
   const allMessages = [
-    ...(chatData?.messages || []),      // From initialization
-    ...historyMessages,                  // From fetch query (persisted messages)
-    ...realtimeMessages,                 // From WebSocket
+    ...(chatData?.messages || []), // From initialization
+    ...historyMessages, // From fetch query (persisted messages)
+    ...realtimeMessages, // From WebSocket
   ]
     .filter(
       (message, index, array) =>
@@ -209,7 +232,7 @@ const DriverChatScreen = () => {
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
 
-  console.log('📊 Message sources:', {
+  console.log("📊 Message sources:", {
     fromInit: chatData?.messages?.length || 0,
     fromHistory: historyMessages.length,
     fromRealtime: realtimeMessages.length,
@@ -228,13 +251,11 @@ const DriverChatScreen = () => {
     showTimestamp: true,
   }));
 
-
   const hasDriverSentMessage = allMessages.some(
     (msg) => msg.senderId === driverId
   );
 
-  console.log('🎯 Quick replies visible:', !hasDriverSentMessage);
-
+  console.log("🎯 Quick replies visible:", !hasDriverSentMessage);
 
   useEffect(() => {
     if (messages.length > 0 && !isLoadingMessages) {
@@ -243,7 +264,6 @@ const DriverChatScreen = () => {
       }, 100);
     }
   }, [messages.length, isLoadingMessages]);
-
 
   const handleBackPress = () => {
     router.back();
@@ -264,7 +284,7 @@ const DriverChatScreen = () => {
       return;
     }
 
-    console.log('📤 Sending message:', message);
+    console.log("📤 Sending message:", message);
 
     sendMessage(
       {
@@ -274,7 +294,7 @@ const DriverChatScreen = () => {
       },
       {
         onSuccess: () => {
-          console.log('✅ Message sent successfully');
+          console.log("✅ Message sent successfully");
 
           // Scroll to bottom after sending
           setTimeout(() => {
@@ -282,8 +302,8 @@ const DriverChatScreen = () => {
           }, 100);
         },
         onError: (error: any) => {
-          console.error('❌ Send message error:', error);
-          Alert.alert('Error', 'Failed to send message. Please try again.');
+          console.error("❌ Send message error:", error);
+          Alert.alert("Error", "Failed to send message. Please try again.");
         },
       }
     );
@@ -343,7 +363,11 @@ const DriverChatScreen = () => {
       <GradientBackground>
         <View style={styles.errorContainer}>
           <CustomText>Failed to load chat</CustomText>
-          <Button title="Retry" variant="primary" onPress={() => router.back()} />
+          <Button
+            title="Retry"
+            variant="primary"
+            onPress={() => router.back()}
+          />
         </View>
       </GradientBackground>
     );
@@ -376,11 +400,14 @@ const DriverChatScreen = () => {
           style={[
             styles.inputWrapper,
             {
-              paddingBottom: isKeyboardVisible
-                ? 0
-                : Platform.OS === "ios"
-                ? 85
-                : 60,
+              paddingBottom:
+                Platform.OS == "android"
+                  ? keyboardHeight + insets.bottom
+                  : isKeyboardVisible
+                  ? 0
+                  : Platform.OS === "ios"
+                  ? 85
+                  : 60,
             },
           ]}
         >
