@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "Lumi Driver App",
-    "slug": "mobile-app-project",
-    "version": "1.0.0",
+    "name": "Last Order Rider",
+    "description": "Last Order Rider is a food delivery app built in React Native using Expo for IOS and Android. It's made keeping good aesthetics in mind as well keeping the best coding practices in mind. Its fully customisable to easily help you in your next food delivery project. https://market.nativebase.io/view/react-native-food-delivery-backend-app",
+    "version": "1.0.5",
+    "slug": "last-order-rider",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobileappproject",
+    "scheme": "last-order-rider",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -19,12 +20,17 @@
       "config": {
         "googleMapsApiKey": "AIzaSyCcm7_Wd7uvmC9YnYLu2JHGWPt6z1MaL1E"
       },
-     "infoPlist": {
+      "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby ride requests and navigate to pickup/dropoff locations.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to track active rides and update your position for passengers in real-time, even when the app is in the background.",
         "NSLocationAlwaysUsageDescription": "We need your location even when the app is closed to track active deliveries and provide accurate ETAs.",
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for voice calls with restaurants and delivery partners",
-        "UIBackgroundModes": ["location", "audio", "voip", "remote-notification"],
+        "UIBackgroundModes": [
+          "location",
+          "audio",
+          "voip",
+          "remote-notification"
+        ],
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos to upload documents.",
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera to take profile pictures.",
         "NSUserTrackingUsageDescription": "Allow this app to collect app-related data that can be used for tracking you or your device.",
@@ -39,6 +45,7 @@
       }
     },
     "android": {
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -67,7 +74,7 @@
         },
         "isAndroidBackgroundLocationEnabled": true
       },
-      "package": "com.ninjascode.lumidrive",
+      "package": "com.lastorder.rider",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -102,16 +109,18 @@
           "isAndroidForegroundServiceEnabled": true
         }
       ],
-       [
-    "expo-build-properties",
-    {
-      "ios": {
-        "deploymentTarget": "15.1",
-        "useFrameworks": "static",
-        "forceStaticLinking": ["RNFBApp"]
-      }
-    }
-  ]
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1",
+            "useFrameworks": "static",
+            "forceStaticLinking": [
+              "RNFBApp"
+            ]
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -119,7 +128,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "51fbfa8e-d54f-4521-9c7d-8335e3d90842"
+        "projectId": "7d9ab887-d34d-4faa-8ede-0c0709e163c4"
       }
     },
     "owner": "ninjas_code"
