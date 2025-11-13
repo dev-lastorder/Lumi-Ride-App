@@ -5,6 +5,7 @@ import { webSocketService } from '@/src/services/socket/webSocketService';
 import { selectUser } from '@/src/store/selectors/authSelectors';
 import { RootState } from '@/src/store/store';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -24,6 +25,7 @@ import rideRequestsService from '../services';
 import { RideRequest } from '../types';
 import RideInfoCard from './RideInfoCard';
 import RideMap from './RideMap';
+import SuccessModal from '@/src/components/common/SuccessModal';
 
 interface RideDetailsModalProps {
   visible: boolean;
@@ -62,6 +64,7 @@ const RideDetailsModal: React.FC<RideDetailsModalProps> = ({
   });
   const [selectedFare, setSelectedFare] = useState<number | null>(null);
   const [myRiderId, setMyRiderId] = useState("");
+  const [showScheduledModal, setShowScheduledModal] = useState(false);
 
 
   const defaultFare = rideRequest?.estimatedFare || 0;
@@ -175,6 +178,7 @@ const RideDetailsModal: React.FC<RideDetailsModalProps> = ({
         startType: rideRequest?.rideType
         // userId: rideRequest?.passenger?.id,
       });
+      
       setIsOffering(true);
       Animated.timing(progress, {
         toValue: 0,
@@ -329,6 +333,8 @@ const RideDetailsModal: React.FC<RideDetailsModalProps> = ({
               fullWidth
               style={[styles.acceptButton, { backgroundColor: colors.primary }]}
             />
+            
+
 
             <Text style={[styles.offerText, { color: colors.textSecondary }]}>
               Offer your fare
@@ -418,6 +424,23 @@ const RideDetailsModal: React.FC<RideDetailsModalProps> = ({
           </TouchableOpacity>
         </ScrollView>
       </View>
+      
+      <SuccessModal
+        visible={showScheduledModal}
+        onClose={() => setShowScheduledModal(false)}
+        title="Ride Scheduled!"
+        subtitle="See all scheduled rides"
+        buttonText="Scheduled Rides"
+        onButtonPress={() => {
+          setShowScheduledModal(false);
+          setTimeout(() => {
+            onClose();
+            setTimeout(() => {
+              router.replace('/(tabs)/(scheduledRides)');
+            }, 100);
+          }, 100);
+        }}
+      />
     </Modal>
   );
 };
