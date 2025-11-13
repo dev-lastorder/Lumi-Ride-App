@@ -18,7 +18,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.lastorder.rider",
       "config": {
-        "googleMapsApiKey": "AIzaSyCcm7_Wd7uvmC9YnYLu2JHGWPt6z1MaL1E"
+        "googleMapsApiKey": "AIzaSyDl-X8BFeyMsvzEydnFFfrXnHD7mPNiJGY"
       },
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby ride requests and navigate to pickup/dropoff locations.",

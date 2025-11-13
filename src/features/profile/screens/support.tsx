@@ -36,7 +36,9 @@ import {
   SUPPORT_TEAM_ID,
   supportChatApi,
 } from "@/src/services/supportChatApi";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  useSafeAreaInsets
+} from "react-native-safe-area-context";
 
 const support = () => {
   const router = useRouter();
@@ -70,7 +72,7 @@ const support = () => {
   const [keyboardHeight, setKeyboardHeight] = useState(80);
 
   const flatListRef = useRef<FlatList>(null);
-  const inests = useSafeAreaInsets();
+
 
   // ============================================
   // TanStack Query Hooks
