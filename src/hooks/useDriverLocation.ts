@@ -1,6 +1,6 @@
 import * as Location from "expo-location";
 import { useCallback, useRef, useState } from "react";
-import { Platform } from "react-native";
+import { Alert, Platform } from "react-native";
 import { updateRiderCurrentLocation } from "../services/currentLocationApi";
 import {
   IRiderLocation,
@@ -132,123 +132,135 @@ export const useDriverLocation = (): LocationHookResult => {
   //   }
   // }, [dispatch]);
 
-  const requestPermissionAndFetchLocation = useCallback(
-    async ({ checkOnly = false } = {}) => {
-      try {
-        // Step 1: Check if location services are enabled
-        const servicesEnabled = await Location.hasServicesEnabledAsync();
-        if (!servicesEnabled) {
-          console.log("⚠️ Location services disabled");
-          setErrorMsg(
-            "Location services are disabled. Please enable GPS in Settings."
-          );
-          dispatch(setDriverStatus("offline"));
-          dispatch(setHasLocation(false));
-          return false;
-        }
 
-        let foregroundStatus;
-
-        if (checkOnly) {
-          // ✅ Only check status without requesting
-          foregroundStatus = await Location.getForegroundPermissionsAsync();
-        } else {
-          // 🚀 Request permission normally
-          console.log("📍 Requesting foreground location permission...");
-          foregroundStatus = await Location.requestForegroundPermissionsAsync();
-        }
-
-        console.log("Foreground permission status:", foregroundStatus);
-
-        if (foregroundStatus.status !== "granted") {
-          console.log("⚠️ Foreground location permission not granted.");
-          setErrorMsg("Foreground location permission not granted.");
-          dispatch(setDriverStatus("offline"));
-          dispatch(setHasLocation(false));
-          return false;
-        }
-
-        // Only handle background permission on iOS
-        if (Platform.OS === "ios") {
-          let backgroundStatus;
-
-          if (checkOnly) {
-            backgroundStatus = await Location.getBackgroundPermissionsAsync();
-          } else {
-            console.log(
-              "📍 Requesting background location permission (iOS only)..."
-            );
-            backgroundStatus =
-              await Location.requestBackgroundPermissionsAsync();
-          }
-
-          console.log("Background permission status:", backgroundStatus);
-
-          if (backgroundStatus.status !== "granted") {
-            console.log("⚠️ Background location permission not granted.");
-            setErrorMsg("Background location permission not granted.");
-            dispatch(setDriverStatus("offline"));
-            dispatch(setHasLocation(false));
-            return false;
-          }
-        } else {
-          console.log("ℹ️ Skipping background permission request on Android");
-        }
-
-        // ✅ If we are only checking, stop here
-        if (checkOnly) {
-          console.log("✅ Permission check passed (check-only mode).");
-          setErrorMsg(null);
-          dispatch(setDriverStatus("online"));
-          dispatch(setHasLocation(true));
-          return true;
-        }
-
-        // Step 4: Get current location (only in normal mode)
-        const currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
-          mayShowUserSettingsDialog: true,
-        });
-
-        console.log("✅ Initial location obtained:", {
-          lat: currentLocation.coords.latitude,
-          lng: currentLocation.coords.longitude,
-        });
-
-        setLocation(currentLocation);
-        setErrorMsg(null);
-
-        // Store in Redux
-        dispatch(
-          setDriverLocation({
-            latitude: currentLocation.coords.latitude,
-            longitude: currentLocation.coords.longitude,
-          })
-        );
-
-        try {
-          // Update in backend
-          await updateRiderCurrentLocation(
-            currentLocation.coords.latitude,
-            currentLocation.coords.longitude
-          );
-        } catch (error) {
-          console.log("⚠️ Backend update failed:", error);
-        }
-
-        return true;
-      } catch (error) {
-        console.error("❌ Failed to fetch/check location:", error);
-        setErrorMsg(
-          "Failed to fetch or check location. Please check permissions."
+const requestPermissionAndFetchLocation = useCallback(
+  async ({ checkOnly = false } = {}) => {
+    try {
+      // Step 1: Check if location services are enabled
+      const servicesEnabled = await Location.hasServicesEnabledAsync();
+      if (!servicesEnabled) {
+        Alert.alert(
+          "Location Services Disabled",
+          "Please enable GPS in Settings to use location features."
         );
         dispatch(setDriverStatus("offline"));
         dispatch(setHasLocation(false));
         return false;
       }
-    },
-    [dispatch]
-  );
+
+      let foregroundStatus;
+
+      if (checkOnly) {
+        foregroundStatus = await Location.getForegroundPermissionsAsync();
+      } else {
+        console.log("📍 Requesting foreground location permission...");
+        foregroundStatus = await Location.requestForegroundPermissionsAsync();
+      }
+
+      console.log("Foreground permission status:", foregroundStatus);
+
+      if (foregroundStatus.status !== "granted") {
+        if (!foregroundStatus.canAskAgain) {
+          Alert.alert(
+            "Permission Denied",
+            "Location permission is denied and cannot be requested again. Please enable it manually from Settings.",
+            [{ text: "Open Settings", onPress: () => Location.enableNetworkProviderAsync?.() }, { text: "OK" }]
+          );
+        } else {
+          Alert.alert(
+            "Permission Needed",
+            "Please allow location permission to continue."
+          );
+        }
+        dispatch(setDriverStatus("offline"));
+        dispatch(setHasLocation(false));
+        return false;
+      }
+
+      // Step 2: Handle background permission (iOS only)
+      if (Platform.OS === "ios") {
+        let backgroundStatus;
+
+        if (checkOnly) {
+          backgroundStatus = await Location.getBackgroundPermissionsAsync();
+        } else {
+          console.log("📍 Requesting background location permission (iOS only)...");
+          backgroundStatus = await Location.requestBackgroundPermissionsAsync();
+        }
+
+        console.log("Background permission status:", backgroundStatus);
+
+        if (backgroundStatus.status !== "granted") {
+          if (!backgroundStatus.canAskAgain) {
+            Alert.alert(
+              "Background Permission Denied",
+              "Background location permission is permanently denied. Please go to Settings and allow 'Always' access."
+            );
+          } else {
+            Alert.alert(
+              "Background Permission Required",
+              "Please grant background location access ('Always Allow') to keep your status active while using the app."
+            );
+          }
+          dispatch(setDriverStatus("offline"));
+          dispatch(setHasLocation(false));
+          return false;
+        }
+      }
+
+      // ✅ Permission check-only mode
+      if (checkOnly) {
+        console.log("✅ Permission check passed (check-only mode).");
+        setErrorMsg(null);
+        dispatch(setDriverStatus("online"));
+        dispatch(setHasLocation(true));
+        return true;
+      }
+
+      // Step 3: Get current location
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+        mayShowUserSettingsDialog: true,
+      });
+
+      console.log("✅ Initial location obtained:", {
+        lat: currentLocation.coords.latitude,
+        lng: currentLocation.coords.longitude,
+      });
+
+      setLocation(currentLocation);
+      setErrorMsg(null);
+      dispatch(
+        setDriverLocation({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        })
+      );
+
+      try {
+        await updateRiderCurrentLocation(
+          currentLocation.coords.latitude,
+          currentLocation.coords.longitude
+        );
+      } catch (error) {
+        console.log("⚠️ Backend update failed:", error);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("❌ Failed to fetch/check location:", error);
+      Alert.alert(
+        "Error",
+        "Failed to fetch or check location. Please check permissions in Settings."
+      );
+      dispatch(setDriverStatus("offline"));
+      dispatch(setHasLocation(false));
+      return false;
+    }
+  },
+  [dispatch]
+);
+
 
   // 🎯 Start only foreground tracking
   const startLocationTracking = useCallback(async () => {
