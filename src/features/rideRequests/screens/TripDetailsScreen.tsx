@@ -24,6 +24,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import RatingModal from "../components/RatingModal";
+import ProfileModal from "../components/ProfileModal";
 import RideMap from "../components/RideMap";
 import rideRequestsService from "../services";
 import Shimmer from "../utils/Shimmer";
@@ -34,6 +35,7 @@ export const TripDetailsScreen: React.FC = () => {
     const insets = useSafeAreaInsets();
     const [rideStatus, setRideStatus] = useState("in_progress");
     const [modalRatingVisible, setModalRatingVisible] = useState(false);
+    const [profileModalVisible, setProfileModalVisible] = useState(false);
     const [loadingRide, setLoadingRide] = useState(false)
     const [rideData, setRideData] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
@@ -360,11 +362,12 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
                         {loading ? (
                             <Shimmer width={60} height={60} borderRadius={30} />
                         ) : (
-
-                            <Image
-                                source={{ uri: rideData?.passengerUser?.profile_image || "https://avatar.iran.liara.run/public/48" }}
-                                style={styles.profileImage}
-                            />
+                            <TouchableOpacity onPress={() => setProfileModalVisible(true)}>
+                                <Image
+                                    source={{ uri: rideData?.passengerUser?.profile_image || "https://avatar.iran.liara.run/public/48" }}
+                                    style={styles.profileImage}
+                                />
+                            </TouchableOpacity>
                         )
 
                         }
@@ -453,6 +456,12 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
 
 
                     }}
+                />
+
+                <ProfileModal
+                    visible={profileModalVisible}
+                    onClose={() => setProfileModalVisible(false)}
+                    userData={rideData?.passengerUser}
                 />
 
             </View>
