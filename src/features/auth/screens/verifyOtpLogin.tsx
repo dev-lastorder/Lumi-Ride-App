@@ -20,12 +20,13 @@ import Title from "../components/common/TitleHeader";
 import OTPInput from "../components/verifyScreens/OTPInput";
 
 import { useSendLoginOtp, useVerifyLoginOtp } from '@/src/features/auth/hooks';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const VerifyOTPLoginScreen: React.FC = () => {
   const params = useLocalSearchParams();
   const userId = params.userId as string;
   const phone = params.phone as string;
-
+const insets = useSafeAreaInsets();
   const otpInputRef = useRef<any>(null);
   const [otp, setOtp] = useState("");
   const [hasError, setHasError] = useState(false);
@@ -156,7 +157,7 @@ const VerifyOTPLoginScreen: React.FC = () => {
             keyboardShouldPersistTaps="handled"
           >
             {/* Top-left back button */}
-            <View style={styles.backButtonWrapper}>
+              <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
               <BackButton
                 size={48}
                 iconSize={20}

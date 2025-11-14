@@ -6,12 +6,15 @@ import { useAppSelector } from '@/src/store/hooks';
 import { selectPersonalInfo } from '@/src/store/selectors/signup.selectors';
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Title from "../components/common/TitleHeader";
 
 const VerificationMethodScreen: React.FC = () => {
   const personalInfo = useAppSelector(selectPersonalInfo);
   const phone = personalInfo.phoneNumber;
+    const insets = useSafeAreaInsets();
+  
 
   const sendOtpMutation = useSendSignupOtp();
   
@@ -64,7 +67,7 @@ const VerificationMethodScreen: React.FC = () => {
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Top-left back button */}
-        <View style={styles.backButtonWrapper}>
+          <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
           <BackButton
             size={48}
             iconSize={20}

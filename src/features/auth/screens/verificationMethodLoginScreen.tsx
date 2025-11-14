@@ -4,7 +4,8 @@ import Button from "@/src/components/ui/Button ";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
-import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Title from "../components/common/TitleHeader";
 import { useSendLoginOtp } from "../hooks";
 
@@ -12,6 +13,7 @@ const VerificationMethodLoginScreen: React.FC = () => {
   const { phoneNumber: phone } = useLocalSearchParams<{ phoneNumber: string }>();
 
   const sendOtpMutation = useSendLoginOtp();
+  const insets = useSafeAreaInsets();
   
   // Track which button is loading
   const [activeMethod, setActiveMethod] = useState<'sms' | 'call' | null>(null);
@@ -62,7 +64,7 @@ const VerificationMethodLoginScreen: React.FC = () => {
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Top-left back button */}
-        <View style={styles.backButtonWrapper}>
+         <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
           <BackButton
             size={48}
             iconSize={20}

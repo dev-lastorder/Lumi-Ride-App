@@ -70,6 +70,11 @@ export const RideRequestsScreen: React.FC = () => {
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
   const appState = useRef(AppState.currentState);
 
+  const myRideRequest = useSelector((state:RootState)=>state.auth.mainTablesData);
+  console.log("ride status", myRideRequest);
+  const isDriverApproved = myRideRequest?.[0]?.data?.is_approved;
+
+
   const { width: windowWidth } = useWindowDimensions();
   const cardRailWidth = useMemo(
     () => Math.max(0, windowWidth - LIST_HORIZONTAL_PADDING * 2),

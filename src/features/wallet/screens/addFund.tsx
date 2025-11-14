@@ -15,6 +15,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import Title from "../../auth/components/common/TitleHeader";
 import AddCardModal from "../components/addFund/AddCardModal";
@@ -44,8 +45,9 @@ const AddFundMain = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [securityCode, setSecurityCode] = useState("");
-    const { currency } = useSelector((state: RootState) => state.appConfig);
+  const { currency } = useSelector((state: RootState) => state.appConfig);
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const AMOUNT_OPTIONS: AmountOption[] = [
     { id: "1", value: 10.0, label: `${currency?.code} 10.00` },
@@ -122,7 +124,7 @@ const AddFundMain = () => {
             >
               {/* Fixed Header Section */}
               <View style={styles.fixedHeader}>
-                <View style={styles.backButtonWrapper}>
+                  <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
                   <BackButton
                     size={48}
                     iconSize={20}

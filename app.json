@@ -70,7 +70,7 @@
       "predictiveBackGestureEnabled": false,
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCcm7_Wd7uvmC9YnYLu2JHGWPt6z1MaL1E"
+          "apiKey": "AIzaSyB2x6XU4jv9dZ-mcyqOYmmZNJPyez9mUCE"
         },
         "isAndroidBackgroundLocationEnabled": true
       },
@@ -93,7 +93,7 @@
           "provider": "google",
           "config": {
             "googleMaps": {
-              "apiKey": "AIzaSyCcm7_Wd7uvmC9YnYLu2JHGWPt6z1MaL1E"
+              "apiKey": "AIzaSyB2x6XU4jv9dZ-mcyqOYmmZNJPyez9mUCE"
             }
           }
         }
