@@ -3,7 +3,7 @@ import BackButton from "@/src/components/common/BackButton";
 import GradientBackground from "@/src/components/common/GradientBackground";
 import { router } from "expo-router";
 import React from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { Platform, SafeAreaView, StyleSheet, View } from "react-native";
 import Title from "../components/common/TitleHeader";
 import Stepper from "../components/common/stepper";
 import VehicleRequirementsForm, {
@@ -14,12 +14,14 @@ import { useCompleteOnboarding } from '@/src/features/auth/hooks';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { selectDocumentSubmission, selectPersonalInfo } from '@/src/store/selectors/signup.selectors';
 import { setVehicleRequirements } from '@/src/store/slices/signup.slice';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SignupThirdScreen: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const documents = useAppSelector(selectDocumentSubmission);
   const personalInfo = useAppSelector(selectPersonalInfo);
+  const insets = useSafeAreaInsets();
 
   const completeOnboardingMutation = useCompleteOnboarding();
 
@@ -106,7 +108,7 @@ const SignupThirdScreen: React.FC = () => {
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.fixedHeader}>
-          <View style={styles.backButtonWrapper}>
+            <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
             <BackButton
               size={48}
               iconSize={20}

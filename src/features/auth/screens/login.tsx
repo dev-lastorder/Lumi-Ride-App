@@ -4,7 +4,7 @@ import GradientBackground from "@/src/components/common/GradientBackground";
 import Button from "@/src/components/ui/Button ";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Keyboard, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, Platform, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import PhoneInput, { ICountry } from "react-native-international-phone-number";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Title from "../components/common/TitleHeader";
@@ -54,7 +54,7 @@ const LoginScreen: React.FC = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
           {/* Top-left back button */}
-          <View style={[styles.backButtonWrapper, { top: insets.top + 10 }]}>
+          <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
             <BackButton
               size={48}
               iconSize={20}

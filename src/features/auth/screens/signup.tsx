@@ -4,7 +4,7 @@ import { useAppDispatch } from "@/src/store/hooks";
 import { setPersonalInfo } from "@/src/store/slices/signup.slice";
 import { router } from "expo-router";
 import React from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { Platform, SafeAreaView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Title from "../components/common/TitleHeader";
 import Stepper from "../components/common/stepper";
@@ -33,7 +33,7 @@ const SignupScreen: React.FC = () => {
         {/* Fixed Header Section */}
         <View style={styles.fixedHeader}>
           {/* Top-left back button */}
-          <View style={[styles.backButtonWrapper, {paddingTop:inest.top}]}>
+            <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  inest.top + 10 }]}>
             <BackButton
               size={48}
               iconSize={20}

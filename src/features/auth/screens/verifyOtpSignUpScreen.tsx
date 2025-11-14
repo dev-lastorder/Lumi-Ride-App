@@ -139,7 +139,7 @@ const VerifyOtpSignUpScreen: React.FC = () => {
             keyboardShouldPersistTaps="handled"
           >
             {/* Top-left back button */}
-            <View style={[styles.backButtonWrapper, { paddingTop: inest.top + 2 }]}>
+            <View style={[styles.backButtonWrapper, { paddingTop: Platform.OS == 'ios'? 0 : inest.top + 2 }]}>
               <BackButton
                 size={48}
                 iconSize={20}

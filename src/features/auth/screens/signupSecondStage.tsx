@@ -1,11 +1,11 @@
 // src/screens/auth/SignupSecondScreen.tsx
-import BackButton from "@/src/components/common/BackButton";
 import GradientBackground from "@/src/components/common/GradientBackground";
 import { useAppDispatch } from "@/src/store/hooks";
 import { setDocumentSubmission } from "@/src/store/slices/signup.slice";
 import { router } from "expo-router";
 import React from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Title from "../components/common/TitleHeader";
 import Stepper from "../components/common/stepper";
 import DocumentSubmissionForm, {
@@ -14,6 +14,8 @@ import DocumentSubmissionForm, {
 
 const SignupSecondScreen: React.FC = () => {
   const dispatch = useAppDispatch();
+    const inest = useSafeAreaInsets();
+  
 
   const handleDocumentSubmit = (values: DocumentSubmissionFormValues) => {
     console.log("📄 Document Submission Values:", values);
@@ -33,7 +35,7 @@ const SignupSecondScreen: React.FC = () => {
         {/* Fixed Header Section */}
         <View style={styles.fixedHeader}>
           {/* Top-left back button */}
-          <View style={styles.backButtonWrapper}>
+           {/* <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  inest.top + 10 }]}>
             <BackButton
               size={48}
               iconSize={20}
@@ -41,7 +43,7 @@ const SignupSecondScreen: React.FC = () => {
               iconColor="#000000"
               backgroundColor="rgba(255,255,255,0.1)"
             />
-          </View>
+          </View> */}
 
           {/* Title Section */}
           <View style={styles.titleWrapper}>
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {},
   stepperWrapper: {
-    paddingHorizontal: 0,
+    paddingHorizontal: 20,
     paddingVertical: 8,
   },
 });
