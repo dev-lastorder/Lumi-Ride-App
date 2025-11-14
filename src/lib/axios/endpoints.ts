@@ -79,6 +79,8 @@ export const API_ENDPOINTS = {
     HISTORY: '/api/v1/ride-requests/history',
 
     SCHEDULED_RIDES: '/api/v1/rides/scheduled',
+
+    CANCEL_SCHEDULED_RIDE: (requestId: string) => `/api/v1/rides/${requestId}/rider/cancel`,
   },
 
   RIDES: {

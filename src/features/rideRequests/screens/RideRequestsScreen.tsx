@@ -1,4 +1,5 @@
 import {
+  CountdownTimer,
   GradientBackground,
   RideRequestsHeader,
 } from "@/src/components/common";
@@ -7,6 +8,7 @@ import { useDriverLocation } from "@/src/hooks/useDriverLocation";
 import { useDriverStatus } from "@/src/hooks/useDriverStatus";
 import { useHiddenRides } from "@/src/hooks/useHiddenRides";
 import { RootState } from "@/src/store/store";
+import { isInTimerWindow } from "@/src/utils/helper";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, {
@@ -57,11 +59,6 @@ export const RideRequestsScreen: React.FC = () => {
   const { currency } = useSelector((state: RootState) => state.appConfig);
   const { driverStatus } = useDriverStatus();
   const { hideRide, isRideHidden } = useHiddenRides();
-  const [countdown, setCountdown] = useState({
-    hours: 0,
-    minutes: 27,
-    seconds: 48,
-  });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedRide, setSelectedRide] = useState<RideRequest | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -99,6 +96,10 @@ export const RideRequestsScreen: React.FC = () => {
   } = useScheduledRideRequests();
 
   const upcomingRide = scheduledRideRequests?.data[0] ?? null;
+  const scheduledFor = upcomingRide?.scheduledFor ?? null;
+
+  // Check if we should show the timer card (60 minutes before pickup)
+  const shouldShowTimerCard = isInTimerWindow(scheduledFor, 30);
 
   // Ensure rideRequests is always an array for FlatList and filter out hidden rides
   const safeRideRequests: RideRequest[] = Array.isArray(rideRequests)
@@ -123,8 +124,6 @@ export const RideRequestsScreen: React.FC = () => {
   );
 
   useEffect(() => {
-  
-
     const subscription = AppState.addEventListener(
       "change",
       async (nextAppState) => {
@@ -147,24 +146,6 @@ export const RideRequestsScreen: React.FC = () => {
     return () => {
       subscription.remove();
     };
-  }, []);
-
-  // Countdown timer for upcoming ride
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        }
-        return prev;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
   }, []);
 
   const handleRefresh = async () => {
@@ -402,7 +383,8 @@ export const RideRequestsScreen: React.FC = () => {
           {/* Upcoming Ride Card */}
           {!isRefetchingScheduledRideRequests &&
             driverStatus === "online" &&
-            upcomingRide && (
+            upcomingRide &&
+            shouldShowTimerCard && (
               <View
                 style={[
                   styles.upcomingRideCard,
@@ -412,11 +394,10 @@ export const RideRequestsScreen: React.FC = () => {
                 <View style={styles.upcomingRideHeader}>
                   <Text style={styles.upcomingRideTitle}>Upcoming ride</Text>
                   <View style={styles.timerContainer}>
-                    <Text style={styles.timerText}>
-                      {String(countdown.hours).padStart(2, "0")} :{" "}
-                      {String(countdown.minutes).padStart(2, "0")} :{" "}
-                      {String(countdown.seconds).padStart(2, "0")}
-                    </Text>
+                    <CountdownTimer
+                      scheduledFor={scheduledFor}
+                      startBeforeMinutes={30}
+                    />
                   </View>
                 </View>
 
