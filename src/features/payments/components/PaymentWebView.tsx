@@ -248,6 +248,12 @@ const PaymentWebView = ({
         onNavigationStateChange={handleNavigationChange}
         injectedJavaScript={injectedJS}
         onMessage={handleMessage}
+        // source={{ uri: qnbPaymentUrl }}
+        // javaScriptEnabled={true}
+        // domStorageEnabled={true}
+        // originWhitelist={['*']}
+        mixedContentMode="always"
+        userAgent="Mozilla/5.0"
       />
     </View>
   );

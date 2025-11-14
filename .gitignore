@@ -43,3 +43,5 @@ yarn-error.*
 # generated native folders
 ios/
 android/
+.expo/devices.json
+.expo/types/router.d.ts
