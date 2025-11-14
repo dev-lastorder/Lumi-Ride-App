@@ -26,7 +26,6 @@ interface IRiderLocation {
   longitude: number;
 }
 
-
 // WebSocket configuration
 const IS_DEV = __DEV__;
 const WEBSOCKET_URL = IS_DEV
@@ -127,9 +126,11 @@ class WebSocketService {
                 console.warn("⚠️ No ride data returned from API.");
               }
             } catch (err) {
-              console.error("❌ Error fetching ride data after bid accepted:", err);
+              console.error(
+                "❌ Error fetching ride data after bid accepted:",
+                err
+              );
             }
-
           } else if (data.message === "Your bid was accepted. Ride schedule!") {
             // ✅ Show alert when scheduled ride is accepted
             Alert.alert(
@@ -142,7 +143,9 @@ class WebSocketService {
           }
         });
 
-
+        this.socket.on("ride-request-fare-raised", async (data) => {
+          console.log("ℹ️ ride-request-fare-raised:", data);
+        });
 
         // Connection timeout
         setTimeout(() => {
@@ -260,33 +263,31 @@ class WebSocketService {
   //   };
   // }
 
-
-    // Update rider's current location while on a trip
-    updateRiderLocation(location: IRiderLocation): void {
-      if (!this.socket || !this.isConnected) {
-        console.error("❌ WebSocket not connected, cannot update rider location");
-        return;
-      }
-  
-      console.log("📍 Updating rider location via WebSocket:", location);
-  
-      // Use acknowledgement to get server response
-      this.socket.emit(
-        "update-rider-current-location",
-        location,
-        (response: any) => {
-          if (response?.success) {
-            console.log(
-              "✅ Rider location update acknowledged by server:",
-              response
-            );
-          } else {
-            console.error("❌ Server rejected location update:", response);
-          }
-        }
-      );
+  // Update rider's current location while on a trip
+  updateRiderLocation(location: IRiderLocation): void {
+    if (!this.socket || !this.isConnected) {
+      console.error("❌ WebSocket not connected, cannot update rider location");
+      return;
     }
-  
+
+    console.log("📍 Updating rider location via WebSocket:", location);
+
+    // Use acknowledgement to get server response
+    this.socket.emit(
+      "update-rider-current-location",
+      location,
+      (response: any) => {
+        if (response?.success) {
+          console.log(
+            "✅ Rider location update acknowledged by server:",
+            response
+          );
+        } else {
+          console.error("❌ Server rejected location update:", response);
+        }
+      }
+    );
+  }
 
   // Get connection status
   isSocketConnected(): boolean {
@@ -312,4 +313,3 @@ export const webSocketService = new WebSocketService();
 
 // Export types
 export type { IReceivedMessage, IRiderLocation, IsentMessage };
-

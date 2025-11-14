@@ -1,6 +1,5 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import { useDriverStatus } from '@/src/hooks/useDriverStatus';
-import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -39,9 +38,9 @@ const RideRequestsHeader: React.FC = () => {
       
       <View style={styles.content}>
         {/* Left Section - Menu Button */}
-        <TouchableOpacity style={[styles.menuButton, { backgroundColor: colors.card }]}>
+        {/* <TouchableOpacity style={[styles.menuButton, { backgroundColor: colors.card }]}>
           <Ionicons name="menu" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Center Section - Toggle Switch */}
         <TouchableOpacity
@@ -88,9 +87,9 @@ const RideRequestsHeader: React.FC = () => {
         </TouchableOpacity>
 
         {/* Right Section - Settings Button */}
-        <TouchableOpacity style={[styles.settingsButton, { backgroundColor: colors.card }]}>
+        {/* <TouchableOpacity style={[styles.settingsButton, { backgroundColor: colors.card }]}>
           <Ionicons name="settings-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,        
   },

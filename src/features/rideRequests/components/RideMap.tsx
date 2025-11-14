@@ -1,6 +1,12 @@
 import { useAppSelector } from "@/src/store/hooks";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import { fetchGoogleRoute } from "../services/MapServices/getRouteCoordinates";
 
@@ -16,7 +22,12 @@ interface RideMapProps {
   shouldFetchRoute?: boolean; // 👈 Optional prop to control fetching
 }
 
-const RideMap: React.FC<RideMapProps> = ({ origin, destination, rideRequest, shouldFetchRoute = true }) => {
+const RideMap: React.FC<RideMapProps> = ({
+  origin,
+  destination,
+  rideRequest,
+  shouldFetchRoute = true,
+}) => {
   const mapRef = useRef<MapView>(null);
   const [routeCoords, setRouteCoords] = useState<Coordinate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +96,7 @@ const RideMap: React.FC<RideMapProps> = ({ origin, destination, rideRequest, sho
     <View style={styles.container}>
       <MapView
         ref={mapRef}
-        provider={PROVIDER_GOOGLE}
+        provider={Platform.OS == "android" ? PROVIDER_GOOGLE : undefined}
         style={styles.map}
         initialRegion={defaultRegion}
       >
@@ -104,22 +115,38 @@ const RideMap: React.FC<RideMapProps> = ({ origin, destination, rideRequest, sho
         {/* Stops Markers */}
         {rideRequest?.stops?.length > 0 &&
           rideRequest.stops
-            .filter((s: { latitude: number; longitude: number; }) => s.latitude !== 0 && s.longitude !== 0)
-            .map((stop: { latitude: any; longitude: any; address: any; }, index: number) => (
-              <Marker
-                key={`stop-${index}`}
-                coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
-                title={`Stop ${index + 1}`}
-                description={stop.address || "Intermediate stop"}
-              >
-                <View style={[styles.iconContainer, { backgroundColor: "orange" }]}>
-                  <Image
-                   source={require("../../../../assets/images/pickup.png")}
-                    style={styles.pickupIcon}
-                  />
-                </View>
-              </Marker>
-            ))}
+            .filter(
+              (s: { latitude: number; longitude: number }) =>
+                s.latitude !== 0 && s.longitude !== 0
+            )
+            .map(
+              (
+                stop: { latitude: any; longitude: any; address: any },
+                index: number
+              ) => (
+                <Marker
+                  key={`stop-${index}`}
+                  coordinate={{
+                    latitude: stop.latitude,
+                    longitude: stop.longitude,
+                  }}
+                  title={`Stop ${index + 1}`}
+                  description={stop.address || "Intermediate stop"}
+                >
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      { backgroundColor: "orange" },
+                    ]}
+                  >
+                    <Image
+                      source={require("../../../../assets/images/pickup.png")}
+                      style={styles.pickupIcon}
+                    />
+                  </View>
+                </Marker>
+              )
+            )}
         {latitude && longitude && (
           <Marker
             coordinate={{ latitude, longitude }}
@@ -129,7 +156,11 @@ const RideMap: React.FC<RideMapProps> = ({ origin, destination, rideRequest, sho
             <View
               style={[
                 styles.iconContainer,
-                { backgroundColor: "#007AFF", borderColor: "white", borderWidth: 2 },
+                {
+                  backgroundColor: "#007AFF",
+                  borderColor: "white",
+                  borderWidth: 2,
+                },
               ]}
             >
               <Image
@@ -171,7 +202,6 @@ const RideMap: React.FC<RideMapProps> = ({ origin, destination, rideRequest, sho
     </View>
   );
 };
-
 
 export default RideMap;
 

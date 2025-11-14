@@ -4,7 +4,7 @@ import Button from "@/src/components/ui/Button ";
 import CustomText from "@/src/components/ui/Text";
 import { globalStyles } from "@/src/constants";
 import { useTheme } from "@/src/context/ThemeContext";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
@@ -21,7 +21,8 @@ const profileScreen = () => {
   const { data, isLoading, error, refetch } = useFetchRiderProfile();
   const { mutate: logout, isPending, isError } = useLogout();
   const theme = useTheme();
-
+  const { isBack } = useLocalSearchParams();
+  console.log("isBack param:", isBack);
   console.log("🚀 Profile data:", data);
 
   const userObject = {
@@ -78,7 +79,7 @@ const profileScreen = () => {
   return (
     <GradientBackground>
       <View style={styles.container}>
-        <CustomHeader title="Your Profile" showBackButton={false} />
+        <CustomHeader title="Your Profile" showBackButton={isBack?true:false} />
         <ScrollView>
           <View style={globalStyles.containerPadding}>
             <MiniPofileCard userDetails={userObject} />
@@ -123,8 +124,11 @@ const profileScreen = () => {
             variant="outline"
             size="medium"
             disabled={isPending}
-            style={{ borderRadius: 100, borderColor: theme.colors.colorTextError }}
-            textStyle={{color: theme.colors.colorTextError}}
+            style={{
+              borderRadius: 100,
+              borderColor: theme.colors.colorTextError,
+            }}
+            textStyle={{ color: theme.colors.colorTextError }}
             fullWidth={true}
             onPress={handleLogout}
           />

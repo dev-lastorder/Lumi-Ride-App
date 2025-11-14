@@ -48,6 +48,7 @@ export const lightColors = {
   colorIconError: '#DC2626',
   white: '#FFFFFF',
   progressFill:"#1691BF",
+  contactSupportBg: "#007e4b",
   };
 
 // --- Dark Theme Palette ---
@@ -96,6 +97,7 @@ export const darkColors = {
     colorTextError: '#DC2626',
     colorIconError: '#DC2626',
     white: '#FFFFFF',
+    contactSupportBg: "#007e4b",
   };
   
   // --- Common Colors Palette ---

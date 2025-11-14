@@ -48,6 +48,7 @@ import {
 } from "../hooks/queries";
 import rideRequestsService from "../services";
 import { RideRequest } from "../types";
+import AccountSuspendedScreen from "./AccountSuspendedScreen";
 
 const LIST_HORIZONTAL_PADDING = 16;
 const ACTION_RAIL_MAX_WIDTH = 320;
@@ -67,10 +68,12 @@ export const RideRequestsScreen: React.FC = () => {
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
   const appState = useRef(AppState.currentState);
 
-  const myRideRequest = useSelector((state:RootState)=>state.auth.mainTablesData);
-  console.log("ride status", myRideRequest);
+  const myRideRequest = useSelector(
+    (state: RootState) => state.auth.mainTablesData
+  );
   const isDriverApproved = myRideRequest?.[0]?.data?.is_approved;
-
+  const rejectionReason = myRideRequest?.[0]?.data?.rejection_reason;
+  console.log("ride status", isDriverApproved, rejectionReason);
 
   const { width: windowWidth } = useWindowDimensions();
   const cardRailWidth = useMemo(
@@ -381,7 +384,10 @@ export const RideRequestsScreen: React.FC = () => {
           <RideRequestsHeader />
 
           {/* Upcoming Ride Card */}
-          {!isRefetchingScheduledRideRequests &&
+          {!isDriverApproved ? (
+            <AccountSuspendedScreen reason={rejectionReason || "N/A"} />
+          ) : (
+            !isRefetchingScheduledRideRequests &&
             driverStatus === "online" &&
             upcomingRide &&
             shouldShowTimerCard && (
@@ -431,44 +437,49 @@ export const RideRequestsScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-            )}
+            )
+          )}
 
           {/* Ride Requests List */}
-          <FlatList
-            data={activeRequests}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefreshing || isRefetching}
-                onRefresh={handleRefresh}
+          {isDriverApproved && (
+            <>
+              <FlatList
+                data={activeRequests}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContent}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isRefreshing || isRefetching}
+                    onRefresh={handleRefresh}
+                  />
+                }
+                ListEmptyComponent={
+                  <OfflineScreen isOnline={driverStatus === "online"} />
+                }
               />
-            }
-            ListEmptyComponent={
-              <OfflineScreen isOnline={driverStatus === "online"} />
-            }
-          />
 
-          <RideDetailsModal
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-            rideRequest={selectedRide}
-            onAccept={handleAcceptRide}
-            onOfferFare={handleOfferFare}
-            onEditFare={handleEditFare}
-          />
+              <RideDetailsModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                rideRequest={selectedRide}
+                onAccept={handleAcceptRide}
+                onOfferFare={handleOfferFare}
+                onEditFare={handleEditFare}
+              />
 
-          <FareInputModal
-            visible={fareInputVisible}
-            onClose={() => {
-              setFareInputVisible(false);
-              setTimeout(() => setModalVisible(true), 100);
-            }}
-            onOffer={handleCustomFareOffer}
-            passengerOffer={selectedRide?.estimatedFare}
-          />
+              <FareInputModal
+                visible={fareInputVisible}
+                onClose={() => {
+                  setFareInputVisible(false);
+                  setTimeout(() => setModalVisible(true), 100);
+                }}
+                onOffer={handleCustomFareOffer}
+                passengerOffer={selectedRide?.estimatedFare}
+              />
+            </>
+          )}
         </SafeAreaView>
       </GradientBackground>
     </GestureHandlerRootView>
