@@ -8,6 +8,7 @@ export default function ScheduledRidesLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen name="rideDetails" />
     </Stack>
   );
 }

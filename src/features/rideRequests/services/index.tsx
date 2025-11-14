@@ -3,10 +3,14 @@ import { API_ENDPOINTS, client } from "@/src/lib/axios";
 import { selectToken } from "@/src/store/selectors/authSelectors";
 import { store } from "@/src/store/store";
 import axios from "axios";
-import { DriverStatus, RideRequest, RideRequestResponse, ScheduledRidesResponse } from "../types";
+import {
+  DriverStatus,
+  RideRequest,
+  RideRequestResponse,
+  ScheduledRidesResponse,
+} from "../types";
 
-
-const BASE_URL = BACKEND_URL.PRODUCTION
+const BASE_URL = BACKEND_URL.PRODUCTION;
 
 const API_BASE = `${BASE_URL}`;
 
@@ -42,20 +46,18 @@ export const rideRequestsService = {
       );
       const data = response.data;
 
-      console.log('Ride request data ', data)
+      console.log("Ride request data ", data);
 
       const requests: RideRequest[] = data.map((item: any) => {
-
         const stops =
           Array.isArray(item.stops) && item.stops.length > 0
             ? item.stops.map((stop: any) => ({
-              latitude: stop.lat ?? stop.dropoff?.lat ?? 0,
-              longitude: stop.lng ?? stop.dropoff?.lng ?? 0,
-              address: stop.address || stop.dropoff_location || "Stop Location",
-            }))
+                latitude: stop.lat ?? stop.dropoff?.lat ?? 0,
+                longitude: stop.lng ?? stop.dropoff?.lng ?? 0,
+                address:
+                  stop.address || stop.dropoff_location || "Stop Location",
+              }))
             : [];
-
-
 
         return {
           id: item.id,
@@ -93,8 +95,8 @@ export const rideRequestsService = {
           rideType: item.is_hourly
             ? "hourly"
             : item.is_scheduled
-              ? "scheduled"
-              : "standard",
+            ? "scheduled"
+            : "standard",
           paymentMethod: item.payment_via?.toLowerCase?.() ?? "cash",
           specialInstructions: null,
           rideTypeId: item?.ride_type_id,
@@ -146,9 +148,6 @@ export const rideRequestsService = {
     }
   },
 
-
-
-
   // Optional: expose loading state for UI
   isAcceptingRide: () => _isAcceptingRide,
 
@@ -194,29 +193,26 @@ export const rideRequestsService = {
     }
   },
 
-
   getZone: async (lat?: number, lng?: number) => {
     try {
-      console.log('Fetching zone for:', lat, lng);
+      console.log("Fetching zone for:", lat, lng);
 
-      const response = await axios.get(
-        `${API_BASE}/api/v1/zones/check`,
-        { params: { lat, lng } }
-      );
+      const response = await axios.get(`${API_BASE}/api/v1/zones/check`, {
+        params: { lat, lng },
+      });
       return response.data;
     } catch (error: any) {
       // Log the error from backend
       if (error.response?.data?.message) {
-        console.error('Backend error message:', error.response.data.message);
+        console.error("Backend error message:", error.response.data.message);
         // Throw the backend message so hook can catch it
-        throw new Error(error.response.data.message.join(', '));
+        throw new Error(error.response.data.message.join(", "));
       }
 
-      console.error('Failed to fetch zone:', error);
+      console.error("Failed to fetch zone:", error);
       throw error;
     }
   },
-
 
   startMyRide: async (rideId: any) => {
     const state = store.getState();
@@ -237,7 +233,10 @@ export const rideRequestsService = {
       console.log("✅ Ride started:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error("❌ Error starting ride:", error.response?.data || error.message);
+      console.error(
+        "❌ Error starting ride:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   },
@@ -260,18 +259,19 @@ export const rideRequestsService = {
       console.log("✅ Ride started:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error("❌ Error completing ride:", error.response?.data || error.message);
+      console.error(
+        "❌ Error completing ride:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   },
-
 
   checkCurrency: async () => {
     const state = store.getState();
     const token = selectToken(state);
 
     console.log("📤 checkCurrency called with token:", token);
-
 
     try {
       const response = await axios.get(`${API_BASE}/currency`, {
@@ -289,26 +289,25 @@ export const rideRequestsService = {
     }
   },
 
-
-
   giveDriverRating: async (
-    payload: { description: string; rating: number; reviewedId: string; rideId: string },
+    payload: {
+      description: string;
+      rating: number;
+      reviewedId: string;
+      rideId: string;
+    },
     reviewerId: string
   ) => {
     const state = store.getState();
     const token = selectToken(state);
 
     try {
-      const response = await axios.post(
-        `${API_BASE}/api/v1/reviews`,
-        payload,
-        {
-          headers: {
-            // "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${API_BASE}/api/v1/reviews`, payload, {
+        headers: {
+          // "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       console.log("✅ Rating submitted:", response.data);
       return response.data;
@@ -321,11 +320,7 @@ export const rideRequestsService = {
     }
   },
 
-
-
-
-
-  checkRideAmount: async (rideId: string,zoneId : any) => {
+  checkRideAmount: async (rideId: string, zoneId: any) => {
     const state = store.getState();
     const token = selectToken(state);
 
@@ -348,8 +343,6 @@ export const rideRequestsService = {
       return { success: false, error: errData };
     }
   },
-
-
 
   // Update driver status
   updateDriverStatus: async (
@@ -377,6 +370,17 @@ export const rideRequestsService = {
       return response.data;
     } catch (error) {
       console.error("Error fetching scheduled ride requests:", error);
+      throw error;
+    }
+  },
+
+  cancelScheduledRideRequest: async (id: string): Promise<void> => {
+    try {
+      console.log("🚀 Canceling schedlued ride request:", id);
+      await client.patch(API_ENDPOINTS.RIDE_REQUESTS.CANCEL_SCHEDULED_RIDE(id));
+      console.log("✅ Ride canceled successfully");
+    } catch (error) {
+      console.error("❌ Error while canceling ride request:", error);
       throw error;
     }
   },

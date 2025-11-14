@@ -1,9 +1,21 @@
 import { CustomHeader, GradientBackground } from "@/src/components/common";
 import { globalStyles } from "@/src/constants";
 import { useDriverStatus } from "@/src/hooks/useDriverStatus";
+import { router } from "expo-router";
 import React, { useMemo, useRef, useState } from "react";
-import { Animated, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
+import {
+  Animated,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  GestureHandlerRootView,
+  Swipeable,
+} from "react-native-gesture-handler";
 import { OfflineScreen, RideCard } from "../components";
 import { useScheduledRideRequests } from "../hooks/queries";
 
@@ -21,15 +33,17 @@ export const ScheduleRideRequestsScreen: React.FC = () => {
 
   const requests = useMemo(() => {
     if (!rideRequests?.data) return [];
-    return rideRequests?.data?.map((item: any) => ({
+
+    return rideRequests.data.map((item: any) => ({
       id: item.rideId,
       profileImg: item?.passenger?.profile,
       passenger: {
         id: item.passenger?.id,
         name: item.passenger?.name,
         phoneNumber: item.passenger?.phone ?? "",
-        rating: 0, // Not present in response
-        totalRides: 0, // Not present in response
+        rating: 0,
+        totalRides: 0,
+        passengerImage: item.passenger?.profile,
       },
       passengerId: item.passenger?.id,
       pickupLocation: {
@@ -45,8 +59,8 @@ export const ScheduleRideRequestsScreen: React.FC = () => {
       requestTime: item.scheduledAt ?? item.createdAt,
       estimatedFare:
         typeof item.agreedPrice === "number" ? item.agreedPrice : 0,
-      distance: 0, // Not present in response
-      estimatedDuration: 0, // Not present in response
+      distance: 0,
+      estimatedDuration: 0,
       status: item.status ? item.status.toLowerCase() : "",
       rideType: item.isHourly
         ? "hourly"
@@ -56,6 +70,9 @@ export const ScheduleRideRequestsScreen: React.FC = () => {
       paymentMethod: item.paymentVia ? item.paymentVia.toLowerCase() : "",
       specialInstructions: null,
       rideTypeId: item.rideType?.id,
+      rideImage: item.rideType?.imageUrl,
+      scheduledAt: item.scheduledAt,
+      scheduledFor: item.scheduledFor,
     }));
   }, [rideRequests]);
 
@@ -76,6 +93,15 @@ export const ScheduleRideRequestsScreen: React.FC = () => {
       if (key !== id && ref) {
         ref.close();
       }
+    });
+  };
+
+  const handleCardPress = (request: { request: any }) => {
+    router.navigate({
+      pathname: "/(tabs)/(scheduledRides)/rideDetails",
+      params: {
+        request: JSON.stringify(request),
+      },
     });
   };
 
@@ -162,7 +188,7 @@ export const ScheduleRideRequestsScreen: React.FC = () => {
         onMenuPress={(rideRequest) =>
           console.log("Menu pressed for ride:", rideRequest.id)
         }
-        onPress={() => console.log("Ride pressed", item.id)}
+        onPress={() => handleCardPress(item)}
       />
     </Swipeable>
   );
