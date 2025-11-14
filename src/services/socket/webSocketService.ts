@@ -1,5 +1,6 @@
 // services/websocketService.ts
 import rideRequestsService from "@/src/features/rideRequests/services";
+import { queryClient } from "@/src/lib/react-query/queryClient";
 import { setOnGoingRideData } from "@/src/store/slices/onGoingRideSlice";
 import { setNewRideRequest } from "@/src/store/slices/requestedRide";
 import { store } from "@/src/store/store";
@@ -98,9 +99,49 @@ class WebSocketService {
           this.messageListeners.forEach((listener) => listener(message));
         });
 
-        this.socket.on("new-ride-request-for-driver", (data) => {
-          console.log("🔥 Received new ride for driver:", data);
-          store.dispatch(setNewRideRequest(data));
+        this.socket.on("new-ride-request-for-driver", (updatedRide) => {
+          store.dispatch(setNewRideRequest(updatedRide));
+          const { latitude, longitude } = store.getState().driverLocation;
+          queryClient.invalidateQueries({
+            queryKey: ["rideRequests", "active", latitude, longitude],
+          });
+          //TODO: Match the event data with the api data
+          // const { latitude, longitude } = store.getState().driverLocation;
+          // console.log("🔥 Received new ride for driver:",updatedRide, latitude, longitude);
+
+          // // Update all query cache entries of active ride requests
+          // queryClient.setQueryData(
+          //   ["rideRequests", "active", latitude, longitude],
+          //   (oldList: any[] | undefined) => {
+          //     console.log(
+          //       "🔄 Updating ride requests cache with new ride:",
+          //       oldList
+          //     );
+          //     if (!oldList || !Array.isArray(oldList)) return [updatedRide]; // if list empty → create new list
+
+          //     const rideExists = oldList.some(
+          //       (ride) => ride.id === updatedRide.id
+          //     );
+
+          //     if (rideExists) {
+          //       // 🔄 Update existing ride
+          //       return oldList.map((ride) =>
+          //         ride.id === updatedRide.id
+          //           ? {
+          //               ...ride,
+          //               offered_fair:
+          //                 parseFloat(updatedRide.offeredFair) ??
+          //                 ride.offered_fair,
+          //               // any other fields to update here...
+          //             }
+          //           : ride
+          //       );
+          //     }
+
+          //     // 🆕 Append new ride at the top (or bottom)
+          //     return [updatedRide, ...oldList]; // OR [...oldList, updatedRide]
+          //   }
+          // );
         });
 
         this.socket.on("bid-accepted", async (data) => {
@@ -143,8 +184,15 @@ class WebSocketService {
           }
         });
 
-        this.socket.on("ride-request-fare-raised", async (data) => {
-          console.log("ℹ️ ride-request-fare-raised:", data);
+        this.socket.on("ride-request-fare-raised", async (updatedRide) => {
+          console.log("ℹ️ ride-request-fare-raised:", updatedRide);
+
+          // Update all query cache entries of active ride requests
+          store.dispatch(setNewRideRequest(updatedRide));
+          const { latitude, longitude } = store.getState().driverLocation;
+          queryClient.invalidateQueries({
+            queryKey: ["rideRequests", "active", latitude, longitude],
+          });
         });
 
         // Connection timeout
