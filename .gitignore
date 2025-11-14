@@ -2,21 +2,15 @@
 
 # dependencies
 node_modules/
-/package-lock.json
-package-lock.json
-./package-lock.json
-
-
+android
+ios
 # Expo
 .expo/
 dist/
-web-build/ 
+web-build/
 expo-env.d.ts
 
-.env
-
 # Native
-.kotlin/
 *.orig.*
 *.jks
 *.p8
@@ -36,10 +30,13 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# local env files
+.env*.local
 
 # typescript
 *.tsbuildinfo
 
-# generated native folders
-ios/
-android/
+app-example
+
+package-lock.json
+yarn.lock
