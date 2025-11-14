@@ -35,11 +35,11 @@ const getAvatarSource = (rideRequest: RideRequest) =>
 
 const getPassengerRides = (rideRequest: RideRequest) => {
 
-  const passenger = rideRequest.passenger as RideRequest['passenger'] & {
+  const passenger = rideRequest?.passenger as RideRequest['passenger'] & {
     totalRides?: number;
     totalRatings?: number;
   };
-  return passenger.totalRides ?? passenger.totalRatings ?? 0;
+  return passenger?.totalRides ?? passenger?.totalRatings ?? 0;
 };
 
 const formatRelativeTime = (requestTime?: string) => {
@@ -159,7 +159,7 @@ export const RideCard: React.FC<RideCardProps> = ({ rideRequest, onMenuPress, on
           <View style={styles.profileInfo}>
             <View style={styles.nameRow}>
               <Text style={[styles.passengerName, { color: colors.text }]} numberOfLines={1}>
-                {rideRequest.passenger.name}
+                {rideRequest?.passenger?.name}
               </Text>
               <View style={[styles.badge, { backgroundColor: badge.background }]}>
                 <Text style={[styles.badgeText, { color: badge.text }]}>{badge.label}</Text>
@@ -169,11 +169,11 @@ export const RideCard: React.FC<RideCardProps> = ({ rideRequest, onMenuPress, on
               <View style={[styles.ratingChip, { backgroundColor: colors.backgroundSecondary }]}>
                 <Ionicons name="star" size={14} color="#FACC15" />
                 <Text style={[styles.ratingValue, { color: colors.text }]}>
-                  {rideRequest.passenger.rating.toFixed(1)}
+                  {rideRequest?.passenger?.rating?.toFixed(1)}
                 </Text>
               </View>
               <Text style={[styles.ratingTotal, { color: colors.textSecondary }]}>
-                {totalRides} total ratings
+                {totalRides?totalRides:0} total ratings
               </Text>
             </View>
           </View>
@@ -210,7 +210,7 @@ export const RideCard: React.FC<RideCardProps> = ({ rideRequest, onMenuPress, on
           <View style={styles.routeRow}>
             <Text style={[styles.routeLabel, { color: colors.textSecondary }]}>Pickup</Text>
             <Text style={[styles.routeText, { color: colors.text }]} numberOfLines={1}>
-              {rideRequest.pickupLocation.address}
+              {rideRequest?.pickupLocation?.address}
             </Text>
           </View>
 
@@ -230,7 +230,7 @@ export const RideCard: React.FC<RideCardProps> = ({ rideRequest, onMenuPress, on
           <View style={styles.routeRow}>
             <Text style={[styles.routeLabel, { color: colors.textSecondary }]}>Drop-off</Text>
             <Text style={[styles.routeText, { color: colors.text }]} numberOfLines={1}>
-              {rideRequest.dropoffLocation.address}
+              {rideRequest?.dropoffLocation?.address}
             </Text>
           </View>
         </View>
@@ -262,16 +262,16 @@ export const RideCard: React.FC<RideCardProps> = ({ rideRequest, onMenuPress, on
         <View style={styles.metaItem}>
           <Ionicons name="navigate-outline" size={16} color={colors.textSecondary} />
           <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-            {rideRequest.distance.toFixed(1)} km
+            {rideRequest?.distance?.toFixed(1)} km
           </Text>
         </View>
         <View style={styles.metaItem}>
           <Ionicons name="speedometer-outline" size={16} color={colors.textSecondary} />
           <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-            {rideRequest.estimatedDuration} min
+            {rideRequest?.estimatedDuration} min
           </Text>
         </View>
-        <Text style={[styles.fare, { color: colors.text }]}>{currency?.code} {rideRequest.estimatedFare.toFixed(2)}</Text>
+        <Text style={[styles.fare, { color: colors.text }]}>{currency?.code} {rideRequest?.estimatedFare?.toFixed(2)}</Text>
       </View>
     </TouchableOpacity>
   );
