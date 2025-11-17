@@ -73,7 +73,8 @@ export const RideRequestsScreen: React.FC = () => {
   );
   const isDriverApproved = myRideRequest?.[0]?.data?.is_approved;
   const rejectionReason = myRideRequest?.[0]?.data?.rejection_reason;
-  console.log("ride status", isDriverApproved, rejectionReason);
+  const isPending = myRideRequest?.[0]?.data?.status == "pending" ? true : false;
+  console.log("ride status", myRideRequest,isDriverApproved, rejectionReason);
 
   const { width: windowWidth } = useWindowDimensions();
   const cardRailWidth = useMemo(
@@ -385,7 +386,7 @@ export const RideRequestsScreen: React.FC = () => {
 
           {/* Upcoming Ride Card */}
           {!isDriverApproved ? (
-            <AccountSuspendedScreen reason={rejectionReason || "N/A"} />
+            <AccountSuspendedScreen reason={rejectionReason || "N/A"} isPending={isPending} />
           ) : (
             !isRefetchingScheduledRideRequests &&
             driverStatus === "online" &&

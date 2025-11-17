@@ -7,9 +7,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface IAccountSuspendedScreen {
   reason: string;
+  isPending?: boolean;
 }
 
-const AccountSuspendedScreen = ({ reason }: IAccountSuspendedScreen) => {
+const AccountSuspendedScreen = ({
+  reason,
+  isPending,
+}: IAccountSuspendedScreen) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   return (
@@ -25,21 +29,23 @@ const AccountSuspendedScreen = ({ reason }: IAccountSuspendedScreen) => {
           weight="semibold"
           style={{ color: theme.colors.colorText }}
         >
-          Account Has Been Suspended
+          {isPending ? "Waiting for Approval" : "Account Has Been Suspended"}
         </CustomText>
 
-        <CustomText
-          variant="bodySmall"
-          style={{
-            marginTop: 10,
-            paddingHorizontal: 20,
-            textAlign: "center",
-            color: theme.colors.colorText,
-            opacity: 0.7,
-          }}
-        >
-          {reason}
-        </CustomText>
+        {!isPending && (
+          <CustomText
+            variant="bodySmall"
+            style={{
+              marginTop: 10,
+              paddingHorizontal: 20,
+              textAlign: "center",
+              color: theme.colors.colorText,
+              opacity: 0.7,
+            }}
+          >
+            {reason}
+          </CustomText>
+        )}
       </View>
 
       <TouchableOpacity
