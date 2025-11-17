@@ -17,13 +17,13 @@ const SignupScreen: React.FC = () => {
 
   const handlePersonalInfoSubmit = (values: PersonalInfoFormValues) => {
     console.log("Personal Info Values:", values);
-    
+
     // Save to Redux store
     dispatch(setPersonalInfo(values));
-    
+
     // Navigate to verification method screen
     router.push("/(auth)/verificationmethod");
-    
+
     // You can also call API here to send data to backend if needed
   };
 
@@ -33,9 +33,9 @@ const SignupScreen: React.FC = () => {
         {/* Fixed Header Section */}
         <View style={styles.fixedHeader}>
           {/* Top-left back button */}
-            <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  inest.top + 10 }]}>
+          <View style={[styles.backButtonWrapper, { top: Platform.OS == 'ios' ? 0 : inest.top}]}>
             <BackButton
-              size={48}
+              size={35}
               iconSize={20}
               borderColor="#D1D5DB"
               iconColor="#000000"
@@ -79,18 +79,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fixedHeader: {
-    paddingTop: 10,
+  
     paddingHorizontal: 20,
   },
   backButtonWrapper: {
-    marginBottom: 20,
+    marginBottom: 30,
   },
   titleWrapper: {
     marginBottom: 10,
+    marginTop: 12,
   },
   titleContainer: {},
-  stepperWrapper: {
-    paddingHorizontal: 3,
-    paddingVertical: 8,
-  },
+ stepperWrapper: {
+  paddingVertical: 8,
+
+},
+
+
 });

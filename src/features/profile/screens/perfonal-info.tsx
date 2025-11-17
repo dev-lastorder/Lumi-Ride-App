@@ -147,10 +147,16 @@ const personalInfo = () => {
                 router.navigate("/(tabs)/(profile)/edit-phone");
               }}
             />
-            <PersonalInfoCard
-              title="Email"
-              description={data?.user.email || ""}
-            />
+
+            {data?.user?.email && (
+              <PersonalInfoCard
+                title="Email"
+                description={data?.user.email || ""}
+              />
+            )
+
+            }
+
           </View>
         </View>
       </ScrollView>
