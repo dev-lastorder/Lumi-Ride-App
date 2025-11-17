@@ -173,12 +173,12 @@ const styles = StyleSheet.create<Styles>({
   lineWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 4,
+    marginHorizontal: 1,
     marginBottom: 36,
   },
   connectorLine: {
     height: 3,
-    width: 50,
+    width: 40,
     borderRadius: 2,
   },
   completedLine: {
