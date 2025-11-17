@@ -1,7 +1,7 @@
 // personalInfoForm.tsx - ACTUALLY FIXED VERSION
 import Button from "@/src/components/ui/Button ";
 import CustomInput from "@/src/components/ui/Input";
-import CustomDropdown from "@/src/components/ui/dropdown";
+import ModalDropdown from "@/src/components/ui/dropdown/ModalDropDown";
 import { useAppSelector } from "@/src/store/hooks";
 import { selectPersonalInfo } from "@/src/store/selectors/signup.selectors";
 import { Formik, FormikHelpers } from "formik";
@@ -19,7 +19,7 @@ import { PersonalInfoSchema } from "../../validations/authValidation";
 interface PersonalInfoFormProps {
   onSubmit: (values: PersonalInfoFormValues) => void;
   initialValues?: PersonalInfoFormValues;
-} 
+}
 
 const cities = [
   { label: "Doha", value: "Doha" },
@@ -36,7 +36,7 @@ const cities = [
   { label: "Mesaieed", value: "Mesaieed" },
   { label: "Al Kharaitiyat", value: "Al Kharaitiyat" },
   { label: "Al Thumama", value: "Al Thumama" },
-    { label: "Al Wukair", value: "Al Wukair" },
+  { label: "Al Wukair", value: "Al Wukair" },
   { label: "Al Sadd", value: "Al Sadd" },
   { label: "Al Kheesa", value: "Al Kheesa" },
   { label: "Simaisma", value: "Simaisma" },
@@ -81,29 +81,29 @@ const cities = [
 
 
 const vehicleTypes = [
-  { 
-    label: "4W Mini (Bike/Scooter)", 
-    value: "e0a81b6a-81b1-4d4a-ad81-5b54fff3f26a" 
+  {
+    label: "4W Mini (Bike/Scooter)",
+    value: "e0a81b6a-81b1-4d4a-ad81-5b54fff3f26a"
   },
-  { 
-    label: "Lumi Go (4-wheeler AC)", 
-    value: "baccc594-a5c7-490d-8c9b-e96ca1227395" 
+  {
+    label: "Lumi Go (4-wheeler AC)",
+    value: "baccc594-a5c7-490d-8c9b-e96ca1227395"
   },
-  { 
-    label: "Lumi Plus (4-wheeler AC)", 
-    value: "38f16813-2929-4daf-9a21-c1a2dd4bad8d" 
+  {
+    label: "Lumi Plus (4-wheeler AC)",
+    value: "38f16813-2929-4daf-9a21-c1a2dd4bad8d"
   },
-  { 
-    label: "Lumi Max (4-wheeler AC)", 
-    value: "c0959bb1-bdfc-4e35-a826-a115b6649b4a" 
+  {
+    label: "Lumi Max (4-wheeler AC)",
+    value: "c0959bb1-bdfc-4e35-a826-a115b6649b4a"
   },
-  { 
-    label: "Lumi Platinum (4-wheeler AC)", 
-    value: "e155d4ad-82b9-452c-be8b-16474213f457" 
+  {
+    label: "Lumi Platinum (4-wheeler AC)",
+    value: "e155d4ad-82b9-452c-be8b-16474213f457"
   },
-  { 
-    label: "Courier (Parcels)", 
-    value: "dc68049e-cb49-44a4-9b9a-b4e294ffa7cf" 
+  {
+    label: "Courier (Parcels)",
+    value: "dc68049e-cb49-44a4-9b9a-b4e294ffa7cf"
   },
 ];
 
@@ -112,7 +112,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   initialValues,
 }) => {
   const savedPersonalInfo = useAppSelector(selectPersonalInfo);
-  
+
   const formInitialValues: PersonalInfoFormValues = initialValues || savedPersonalInfo || {
     fullName: "",
     phoneNumber: "",
@@ -128,16 +128,16 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     formikHelpers: FormikHelpers<PersonalInfoFormValues>
   ) => {
     const formattedPhoneNumber = selectedCountry
-      ? `${selectedCountry.callingCode.startsWith("+") 
-          ? selectedCountry.callingCode 
-          : `+${selectedCountry.callingCode}`}${values.phoneNumber.replace(/\s+/g, "")}`
+      ? `${selectedCountry.callingCode.startsWith("+")
+        ? selectedCountry.callingCode
+        : `+${selectedCountry.callingCode}`}${values.phoneNumber.replace(/\s+/g, "")}`
       : values.phoneNumber;
 
     const submissionValues = {
       ...values,
       phoneNumber: formattedPhoneNumber,
     };
-    
+
     onSubmit(submissionValues);
     formikHelpers.setSubmitting(false);
   };
@@ -163,6 +163,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
       }) => (
         <ScrollView
           style={styles.scrollView}
+
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -219,51 +220,36 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 
             {/* City Dropdown - ✅ REAL FIX: Set value first, then touch+validate */}
             <View style={[styles.dropdownWrapper, { zIndex: openDropdown === 'city' ? 2000 : 1 }]}>
-              <CustomDropdown
+              <Text style={styles.label}>City</Text>
+              <ModalDropdown
                 label="City"
                 placeholder="Select City"
                 value={values.city}
                 items={cities}
                 onChange={(value) => {
                   console.log("🏙️ City Selected:", value);
-                  // ✅ REAL FIX: First set the value WITHOUT validating
+                  // ✅ First set the value WITHOUT validating
                   setFieldValue("city", value, false);
                   // ✅ Then mark as touched AND validate together
-                  // This ensures the new value is set before validation runs
-                  setTimeout(() => {
-                    setFieldTouched("city", true, true);
-                  }, 0);
+                  setTimeout(() => setFieldTouched("city", true, true), 0);
                 }}
-                error={touched.city ? errors.city : undefined}
-                variant="outline"
-                size="large"
-                open={openDropdown === 'city'}
-                setOpen={(isOpen) => setOpenDropdown(isOpen ? 'city' : null)}
               />
+
             </View>
 
             {/* Vehicle Type Dropdown - ✅ REAL FIX: Set value first, then touch+validate */}
             <View style={[styles.dropdownWrapper, { zIndex: openDropdown === 'vehicleType' ? 2000 : 1 }]}>
-              <CustomDropdown
+              <Text style={styles.label}>Vehicle Type</Text>
+              <ModalDropdown
                 label="Vehicle Type"
                 placeholder="Select Vehicle Type"
                 value={values.vehicleType}
                 items={vehicleTypes}
                 onChange={(value) => {
-                  console.log("🚗 Vehicle Type Selected (UUID):", value);
-                  // ✅ REAL FIX: First set the value WITHOUT validating
                   setFieldValue("vehicleType", value, false);
-                  // ✅ Then mark as touched AND validate together
-                  // This ensures the new value is set before validation runs
-                  setTimeout(() => {
-                    setFieldTouched("vehicleType", true, true);
-                  }, 0);
+                  setTimeout(() => setFieldTouched("vehicleType", true, true), 0);
+                  console.log("🚗 Vehicle Type Selected:", value);
                 }}
-                error={touched.vehicleType ? errors.vehicleType : undefined}
-                variant="outline"
-                size="large"
-                open={openDropdown === 'vehicleType'}
-                setOpen={(isOpen) => setOpenDropdown(isOpen ? 'vehicleType' : null)}
               />
             </View>
 

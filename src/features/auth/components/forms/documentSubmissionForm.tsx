@@ -26,6 +26,9 @@ interface DocumentSubmissionFormProps {
   initialValues?: Partial<DocumentSubmissionFormValues>;
 }
 
+
+
+
 const DocumentSubmissionForm: React.FC<DocumentSubmissionFormProps> = ({
   onSubmit,
   initialValues,
@@ -399,6 +402,7 @@ const DocumentSubmissionForm: React.FC<DocumentSubmissionFormProps> = ({
           files={companyRegistration}
           onUpload={() =>
             handleDocumentPick(setCompanyRegistration, "companyRegistration")
+            
           }
           onRemove={(i) =>
             handleRemoveFile(setCompanyRegistration, i, "companyRegistration")

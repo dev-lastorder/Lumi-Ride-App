@@ -88,6 +88,7 @@ export const useVerifySignupOtp = () => {
             availabilityStatus: data.rider.availabilityStatus,
             is_onboarding_completed: data.rider.is_onboarding_completed,
           },
+          mainTablesData:[],
         })
       );
 

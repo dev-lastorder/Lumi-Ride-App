@@ -81,9 +81,9 @@ export const useCompleteOnboarding = () => {
       formData.append('no_cosmetic_damage', String(data.no_cosmetic_damage));
       formData.append('licenseNumber', data.licenseNumber);
       formData.append('ride_type_id', data.ride_type_id);
-      formData.append('vehicleName', data.vehicle_name);
-      formData.append('vehicleColor', data.vehicle_colour);
-      formData.append('vehicleNumber', data.vehicle_no);
+      formData.append('vehicle_name', data.vehicle_name);
+      formData.append('vehicle_colour', data.vehicle_colour);
+      formData.append('vehicle_no', data.vehicle_no);
 
       // Use multipart client for file upload (token added automatically!)
       const response = await multipartClient.patch<CompleteOnboardingResponse>(
@@ -97,6 +97,7 @@ export const useCompleteOnboarding = () => {
       console.log('✅ Onboarding completed successfully!');
       console.log('📄 Documents uploaded to S3');
       console.log('🎯 Onboarded:', data.rider.is_onboarding_completed);
+      console.log("data of sign up is :", data)
 
       // Update Redux - Mark as onboarded (GATE 2 PASSED! ✅)
       dispatch(setOnboarded(true));

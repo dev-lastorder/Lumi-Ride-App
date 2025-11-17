@@ -159,11 +159,12 @@ const styles = StyleSheet.create({
   backButtonWrapper: {
     paddingTop: 10,
     paddingLeft: 20,
-    marginBottom: 20,
+    marginBottom: 40,
   },
   titleWrapper: {
     paddingHorizontal: 20,
     marginBottom: 40,
+    marginTop:10,
   },
   titleContainer: {},
   imageContainer: {
