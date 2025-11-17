@@ -76,7 +76,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
           const newValue = typeof callback === 'function' ? callback(value) : callback;
           onChange(newValue);
         }}
-        setItems={() => {}} // Not needed since items are controlled by parent
+        setItems={() => { }}
         placeholder={placeholder}
         disabled={disabled}
         style={getDropdownStyle()}
@@ -85,10 +85,11 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         placeholderStyle={styles.placeholder}
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
-        onClose={() => {
-          onBlur?.();
-        }}
+        onClose={() => onBlur?.()}
+        zIndex={2000}
+        zIndexInverse={3000}
       />
+
 
       {/* Helper Text */}
       {helperText && !error && !errorMessage && (

@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginBottom: 10,
+    marginTop:20,
   },
   titleContainer: {},
   stepperWrapper: {
