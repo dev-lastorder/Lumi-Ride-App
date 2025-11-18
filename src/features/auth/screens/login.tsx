@@ -2,6 +2,7 @@
 import BackButton from "@/src/components/common/BackButton";
 import GradientBackground from "@/src/components/common/GradientBackground";
 import Button from "@/src/components/ui/Button ";
+import { useKeyboardPadding } from "@/src/hooks/useKeyboardPadding";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Keyboard, Platform, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
@@ -15,7 +16,7 @@ const LoginScreen: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
-
+const { androidPadding } = useKeyboardPadding(0);
   // Format phone number to international format (e.g., +923355183960)
   const formatPhoneNumber = (): string => {
     if (!phoneNumber || !selectedCountry) return "";
@@ -105,6 +106,7 @@ const LoginScreen: React.FC = () => {
                   input: styles.phoneInput,
                 }}
                 modalStyles={{
+                  modal:{marginBottom: Platform.OS === "android" ? androidPadding : 0},
                   backdrop: {},
                   countryName: styles.countryName,
                   searchInput: styles.searchInput,

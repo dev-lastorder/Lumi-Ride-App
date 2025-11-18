@@ -172,14 +172,16 @@ class WebSocketService {
                 err
               );
             }
-          } else if (data.message === "Your bid was accepted. Ride schedule!") {
+          } 
+          else if (data.message === "Your bid was accepted. Ride schedule!") {
             // ✅ Show alert when scheduled ride is accepted
             Alert.alert(
               "Ride Scheduled",
               "Your bid has been accepted and the ride has been scheduled successfully.",
               [{ text: "OK" }]
             );
-          } else {
+          } 
+          else {
             console.log("ℹ️ Unhandled bid-accepted message:", data.message);
           }
         });

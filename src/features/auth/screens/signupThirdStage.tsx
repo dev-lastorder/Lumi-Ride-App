@@ -108,7 +108,7 @@ const SignupThirdScreen: React.FC = () => {
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.fixedHeader}>
-            <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
+            <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top  }]}>
             <BackButton
               size={48}
               iconSize={20}
@@ -155,7 +155,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fixedHeader: {
-    paddingTop: 10,
     paddingHorizontal: 20,
   },
   backButtonWrapper: {

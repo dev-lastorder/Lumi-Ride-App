@@ -23,6 +23,7 @@ interface RiderProfile {
   licenseNumber: string;
   availabilityStatus: 'online' | 'offline';
   is_onboarding_completed: boolean;
+  is_approved:boolean
 }
 
 // Complete authentication state
@@ -138,7 +139,7 @@ const authSlice = createSlice({
     // Called when user logs out or token expires
     // Resets EVERYTHING back to initial state
     // Closes all three gates
-    logout: (state) => {
+    updatelogout: (state) => {
       state.isLoggedIn = false;
       state.token = null;
       state.user = null;
@@ -159,7 +160,7 @@ export const {
   setTermsAccepted,
   updateRiderProfile,
   updateUser,
-  logout,
+  updatelogout,
 } = authSlice.actions;
 
 export default authSlice.reducer;

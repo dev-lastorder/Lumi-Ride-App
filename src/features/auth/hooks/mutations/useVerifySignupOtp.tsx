@@ -33,6 +33,7 @@ interface VerifySignupOtpResponse {
     user_type_id: string;
   };
   rider: {
+    is_approved: boolean;
     id: string;
     user_profile_id: string;
     vehicleType: string;
@@ -87,7 +88,11 @@ export const useVerifySignupOtp = () => {
             licenseNumber: data.rider.licenseNumber,
             availabilityStatus: data.rider.availabilityStatus,
             is_onboarding_completed: data.rider.is_onboarding_completed,
+            is_approved: data.rider.is_approved,
+            
+            
           },
+
           mainTablesData:[],
         })
       );

@@ -150,7 +150,10 @@ const OrderDetail = () => {
           title="Are you sure?"
         >
           <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
+            style={[
+              styles.button,
+              { backgroundColor: theme.colors.colorTextError },
+            ]}
             onPress={handleCancel}
             disabled={isCanceling}
           >
@@ -188,9 +191,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 8,
   },
-  cancelButton: {
-    backgroundColor: useTheme().colors.colorTextError,
-  },
+  // cancelButton: {
+  //   backgroundColor: useTheme().colors.colorTextError,
+  // },
   continueButton: {
     backgroundColor: "#F4F4F5",
   },

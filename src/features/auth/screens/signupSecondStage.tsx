@@ -33,7 +33,7 @@ const SignupSecondScreen: React.FC = () => {
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Fixed Header Section */}
-        <View style={styles.fixedHeader}>
+        <View style={[styles.fixedHeader,{paddingTop:inest.top} ]}>
           {/* Top-left back button */}
            {/* <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  inest.top + 10 }]}>
             <BackButton

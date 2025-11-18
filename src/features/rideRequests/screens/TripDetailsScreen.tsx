@@ -19,13 +19,12 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import RatingModal from "../components/RatingModal";
 import ProfileModal from "../components/ProfileModal";
-import RideMap from "../components/RideMap";
+import RatingModal from "../components/RatingModal";
 import rideRequestsService from "../services";
 import Shimmer from "../utils/Shimmer";
 
@@ -312,10 +311,10 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
     return (
         <View style={{ flex: 1, }}>
 
-            <RideMap
+            {/* <RideMap
                 origin={origin}
                 destination={destination}
-                rideRequest={rideData} />
+                rideRequest={rideData} /> */}
 
 
             {rideStatus === 'in_progess' && (
@@ -441,6 +440,8 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
                     </View>
 
 
+
+
                 </View>
 
 
@@ -463,9 +464,7 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
                     onClose={() => setProfileModalVisible(false)}
                     userData={rideData?.passengerUser}
                 />
-
-            </View>
-            {loading ? (
+                {loading ? (
                 <View style={{ marginBottom: insets.bottom + 60, alignItems: "center", }}>
                     <Shimmer width="90%" height={40} borderRadius={20} />
                 </View>
@@ -474,7 +473,7 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
                 <TouchableOpacity
                     style={[
                         styles.button,
-                        { marginBottom: insets.bottom + 80 },
+                        { marginBottom: insets.bottom + 90 },
                         rideStatus === "started" || rideStatus === "completed"
                             ? { backgroundColor: Colors.light.primary }
                             : { backgroundColor: Colors.light.success },
@@ -505,6 +504,9 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
             )
 
             }
+
+            </View>
+            
         </View>
     );
 };

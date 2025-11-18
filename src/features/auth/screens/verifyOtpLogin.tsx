@@ -157,7 +157,7 @@ const insets = useSafeAreaInsets();
             keyboardShouldPersistTaps="handled"
           >
             {/* Top-left back button */}
-              <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
+              <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top }]}>
               <BackButton
                 size={48}
                 iconSize={20}
@@ -259,13 +259,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   backButtonWrapper: {
-    paddingTop: 10,
+   
     paddingLeft: 20,
     marginBottom: 20,
   },
   titleWrapper: {
     paddingHorizontal: 20,
     marginBottom: 20,
+    marginTop:20,
   },
   titleContainer: {},
   imageContainer: {

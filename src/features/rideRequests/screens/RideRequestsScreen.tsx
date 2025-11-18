@@ -71,10 +71,15 @@ export const RideRequestsScreen: React.FC = () => {
   const myRideRequest = useSelector(
     (state: RootState) => state.auth.mainTablesData
   );
+
+  const ApprovalStatus = useSelector((state: RootState) => state.auth.riderProfile);
+  console.log("ApprovalStatus", ApprovalStatus)
   const isDriverApproved = myRideRequest?.[0]?.data?.is_approved;
   const rejectionReason = myRideRequest?.[0]?.data?.rejection_reason;
-  const isPending = myRideRequest?.[0]?.data?.status == "pending" ? true : false;
-  console.log("ride status", myRideRequest,isDriverApproved, rejectionReason);
+  const isPending =
+    ApprovalStatus?.status === "pending" ||
+    myRideRequest?.[0]?.data?.status === "pending";
+
 
   const { width: windowWidth } = useWindowDimensions();
   const cardRailWidth = useMemo(

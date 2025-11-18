@@ -67,7 +67,7 @@ const VerificationMethodScreen: React.FC = () => {
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Top-left back button */}
-          <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top + 10 }]}>
+          <View style={[styles.backButtonWrapper, { top:Platform.OS=='ios'? 0:  insets.top}]}>
           <BackButton
             size={48}
             iconSize={20}
@@ -157,14 +157,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backButtonWrapper: {
-    paddingTop: 10,
+   
     paddingLeft: 20,
     marginBottom: 40,
   },
   titleWrapper: {
     paddingHorizontal: 20,
     marginBottom: 40,
-    marginTop:10,
+    marginTop:20,
   },
   titleContainer: {},
   imageContainer: {

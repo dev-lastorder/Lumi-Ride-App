@@ -1,3 +1,5 @@
+import { Linking } from "react-native";
+
 export function handleTruncate(
   maxLength: number,
   input: string | number
@@ -94,3 +96,23 @@ export const canCancelRide = (
     return false; // Don't show button in case of error
   }
 };
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+export const isFileSizeValid = (file: { size: number }) => {
+  return file.size <= MAX_FILE_SIZE;
+};
+
+export const PRIVACY_URL = 'https://lumi.qa/privacy'
+
+export const openPrivacy = () => {
+  try {
+
+    Linking.canOpenURL(PRIVACY_URL).then((val) => {
+      if (val) {
+        Linking.openURL(PRIVACY_URL)
+      }
+    })
+  } catch (e) {
+
+  }
+}

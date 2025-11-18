@@ -7,6 +7,7 @@ import { selectVehicleRequirements } from "@/src/store/selectors/signup.selector
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import {
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -112,10 +113,10 @@ const VehicleRequirementsForm: React.FC<VehicleRequirementsFormProps> = ({
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Model Year Limit</Text>
                 <Text style={styles.helperText}>
-                  (e.g., not older than 10 - 15 years)
+                  (e.g., not older than 10 years)
                 </Text>
                 <CustomInput
-                  placeholder="10"
+                  placeholder="2015"
                   value={values.modelYearLimit}
                   onChangeText={handleChange("modelYearLimit")}
                   onBlur={() => setFieldTouched("modelYearLimit", true)}
@@ -271,6 +272,7 @@ const VehicleRequirementsForm: React.FC<VehicleRequirementsFormProps> = ({
                   style={styles.checkbox}
                   onPress={() =>
                     setFieldValue("agreedToTerms", !values.agreedToTerms)
+                   
                   }
                 >
                   <View
@@ -285,11 +287,7 @@ const VehicleRequirementsForm: React.FC<VehicleRequirementsFormProps> = ({
                   </View>
                   <Text style={styles.checkboxText}>
                     I agree to{" "}
-                    <Text style={styles.linkText}>Terms & Privacy Policy</Text>{" "}
-                    and{" "}
-                    <Text style={styles.linkText}>
-                      the requirements in the attached image.
-                    </Text>
+                    <Text   onPress={() => Linking.openURL("https://lumi.qa/privacy")} style={styles.linkText}>General Terms of use & Privacy Policy.</Text>
                   </Text>
                 </TouchableOpacity>
                 {touched.agreedToTerms && errors.agreedToTerms && (
@@ -306,7 +304,7 @@ const VehicleRequirementsForm: React.FC<VehicleRequirementsFormProps> = ({
                       title="Back"
                       onPress={onBack}
                       variant="outline"
-                      size="large"
+                      size="medium"
                       disabled={isSubmitting} // ✅ Disable back button while submitting
                       style={styles.backButton}
                     />

@@ -4,8 +4,10 @@ import Button from "@/src/components/ui/Button ";
 import CustomText from "@/src/components/ui/Text";
 import { globalStyles } from "@/src/constants";
 import { useTheme } from "@/src/context/ThemeContext";
+import { updatelogout } from "@/src/store/slices/auth.slice";
+import { resetSignup } from "@/src/store/slices/signup.slice";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -13,6 +15,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { useDispatch } from "react-redux";
 import { useLogout } from "../../auth/hooks";
 import { InfoCard, MiniPofileCard } from "../components";
 import { useFetchRiderProfile } from "../hooks/queries";
@@ -20,10 +23,12 @@ import { useFetchRiderProfile } from "../hooks/queries";
 const profileScreen = () => {
   const { data, isLoading, error, refetch } = useFetchRiderProfile();
   const { mutate: logout, isPending, isError } = useLogout();
+  const [loading, setLoading]= useState(false);
   const theme = useTheme();
   const { isBack } = useLocalSearchParams();
   console.log("isBack param:", isBack);
   console.log("🚀 Profile data:", data);
+  const dispatch = useDispatch();
 
   const userObject = {
     name: data?.user?.name || "",
@@ -34,15 +39,24 @@ const profileScreen = () => {
   };
 
   const handleLogout = async () => {
+    setLoading(true)
     if (isPending) {
+      setLoading(false)
       return;
     }
     try {
-      logout();
+
+      dispatch(updatelogout());
+      dispatch(resetSignup());
+       router.replace('/(auth)/welcome');
+       setLoading(false)
+
     } catch (error) {
       console.error("Failed to logout:", error);
+      setLoading(false)
     } finally {
       router.navigate("/(tabs)/(rideRequests)");
+      setLoading(false)
     }
   };
 
@@ -79,7 +93,7 @@ const profileScreen = () => {
   return (
     <GradientBackground>
       <View style={styles.container}>
-        <CustomHeader title="Your Profile" showBackButton={isBack?true:false} />
+        <CustomHeader title="Your Profile" showBackButton={isBack ? true : false} />
         <ScrollView>
           <View style={globalStyles.containerPadding}>
             <MiniPofileCard userDetails={userObject} />
@@ -123,6 +137,7 @@ const profileScreen = () => {
             title={isPending ? "Logging out..." : "Logout"}
             variant="outline"
             size="medium"
+            loading={loading}
             disabled={isPending}
             style={{
               borderRadius: 100,
