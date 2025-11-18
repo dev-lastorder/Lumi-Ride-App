@@ -26,6 +26,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import ProfileModal from "../components/ProfileModal";
 import RatingModal from "../components/RatingModal";
+import ReviewSubmittedModal from "../components/ReviewSubmittedModal";
 import rideRequestsService from "../services";
 import Shimmer from "../utils/Shimmer";
 
@@ -43,6 +44,8 @@ export const TripDetailsScreen: React.FC = () => {
     const [isCallLoading, setIsCallLoading] = useState(false);
     const { currency } = useSelector((state: RootState) => state.appConfig);
     const user = useSelector((state: RootState) => state.auth?.user);
+    const [loadingSubmit, setLoadingSubmit] = useState(false)
+    const [modalReveiwSubmitted, setModalReveiwSubmitted] = useState(false)
 
     const dispatch = useDispatch()
     const { startLocationTracking, stopLocationTracking } = useDriverLocation();
@@ -90,17 +93,17 @@ export const TripDetailsScreen: React.FC = () => {
         }
     };
 
-    const rideStart = async (rideId: any, rideData:any ) => {
+    const rideStart = async (rideId: any, rideData: any) => {
         console.log("calling ride start:", rideData)
-        
+
 
 
         try {
             const data = await rideRequestsService.startMyRide(rideId);
             console.log("my ride data", data)
             webSocketService.startRide({
-                rideId:rideId,
-                genericUserId:rideData?.passengerUser?.id ,
+                rideId: rideId,
+                genericUserId: rideData?.passengerUser?.id,
             })
 
             if (data?.message === 'Ride status updated to IN_PROGRESS successfully') {
@@ -115,7 +118,7 @@ export const TripDetailsScreen: React.FC = () => {
             setLoadingRide(false);
         }
     }
-    const rideCompleted = async (rideId: any,  rideData:any ) => {
+    const rideCompleted = async (rideId: any, rideData: any) => {
         console.log("calling ride start:", rideId)
 
         try {
@@ -123,9 +126,9 @@ export const TripDetailsScreen: React.FC = () => {
             console.log("my ride data", data);
             setLoadingRide(true)
 
-              webSocketService.rideCompleted({
-                rideId:rideId,
-                genericUserId:rideData?.passengerUser?.id ,
+            webSocketService.rideCompleted({
+                rideId: rideId,
+                genericUserId: rideData?.passengerUser?.id,
             })
 
             if (data?.message === "Ride completed successfully") {
@@ -138,7 +141,7 @@ export const TripDetailsScreen: React.FC = () => {
             }
 
             try {
-                 stopLocationTracking();
+                stopLocationTracking();
             } catch (error) {
                 console.log("Error stopping location tracking:", error);
             }
@@ -169,7 +172,9 @@ export const TripDetailsScreen: React.FC = () => {
 
 
     const giveRating = async (ratingData: { comment: string; rating: number }) => {
+        setLoadingSubmit(true);
         try {
+
             console.log("Rating submitted:", ratingData);
             console.log("id is :", onGoingRideData?.passengerUser?.id)
             console.log('rating data', ratingData)
@@ -191,12 +196,15 @@ export const TripDetailsScreen: React.FC = () => {
             console.log("Server response:", result);
             if (result) {
                 // router.replace("/(tabs)/(rideRequests)/rideRequest")
-                Alert.alert("Rated submitted Successfully")
+                setModalReveiwSubmitted(true);
+                setLoadingSubmit(false);
                 setModalRatingVisible(false);
             }
+            setLoadingSubmit(false);
 
         } catch (error: any) {
             console.log("Error giving rating:", error.response);
+            setLoadingSubmit(false);
         }
     };
 
@@ -221,26 +229,26 @@ export const TripDetailsScreen: React.FC = () => {
 
         try {
             const shareMessage = `
-🚗 Ride Details:
-📍 Pickup: ${rideData.pickup_location}
-🏁 Drop-off: ${rideData.dropoff_location}
-💰 Fare: £${rideData.agreed_price}
-💳 Payment: ${rideData.payment_via}
-👤 Passenger: ${rideData.passengerUser?.name}
+                        🚗 Ride Details:
+                        📍 Pickup: ${rideData.pickup_location}
+                        🏁 Drop-off: ${rideData.dropoff_location}
+                        💰 Fare: £${rideData.agreed_price}
+                        💳 Payment: ${rideData.payment_via}
+                        👤 Passenger: ${rideData.passengerUser?.name}
 
-Track on map:
-Pickup → https://www.google.com/maps?q=${rideData.pickup?.lat},${rideData.pickup?.lng}
-Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.dropoff?.lng}
-    `.trim();
+                        Track on map:
+                        Pickup → https://www.google.com/maps?q=${rideData.pickup?.lat},${rideData.pickup?.lng}
+                        Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.dropoff?.lng}
+                            `.trim();
 
-            await Share.share({
-                message: shareMessage,
-                title: "Share My Ride",
-            });
-        } catch (error) {
-            console.error("❌ Error sharing ride:", error);
-        }
-    };
+                                    await Share.share({
+                                        message: shareMessage,
+                                        title: "Share My Ride",
+                                    });
+                                } catch (error) {
+                                    console.error("❌ Error sharing ride:", error);
+                                }
+                            };
 
 
 
@@ -461,6 +469,7 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
                     visible={modalRatingVisible}
                     rideData={rideData}
                     onClose={() => setModalRatingVisible(false)}
+                    loading={loadingSubmit}
                     onSubmit={(rating) => {
                         console.log("Rating submitted:", rating);
 
@@ -471,54 +480,57 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
                     }}
                 />
 
+                <ReviewSubmittedModal visible={modalReveiwSubmitted} onClose={() => setModalReveiwSubmitted(false)} />
+
+
                 <ProfileModal
                     visible={profileModalVisible}
                     onClose={() => setProfileModalVisible(false)}
                     userData={rideData?.passengerUser}
                 />
                 {loading ? (
-                <View style={{ marginBottom: insets.bottom + 60, alignItems: "center", }}>
-                    <Shimmer width="90%" height={40} borderRadius={20} />
-                </View>
+                    <View style={{ marginBottom: insets.bottom + 60, alignItems: "center", }}>
+                        <Shimmer width="90%" height={40} borderRadius={20} />
+                    </View>
 
-            ) : (
-                <TouchableOpacity
-                    style={[
-                        styles.button,
-                        { marginBottom: insets.bottom + 90 },
-                        rideStatus === "started" || rideStatus === "completed"
-                            ? { backgroundColor: Colors.light.primary }
-                            : { backgroundColor: Colors.light.success },
-                    ]}
-                    onPress={() => {
-                        if (loadingRide) return; // prevent multiple taps
-                        if (rideStatus === "in_progress") {
-                            setRideStatus("started");
-                        } else if (rideStatus === "started") {
-                            rideStart(rideData?.rideId , rideData);
-                        } else if (rideStatus === "completed") {
-                            rideCompleted(rideData?.rideId, rideData);
-                        }
-                    }}
-                    activeOpacity={0.8}
-                >
-                    {loadingRide ? (
-                        <ActivityIndicator color="#fff" size="small" />
-                    ) : rideStatus === "in_progress" ? (
-                        <Text style={styles.buttonText}>I’m Here</Text>
-                    ) : rideStatus === "started" ? (
-                        <Text style={styles.buttonText}>Start Ride</Text>
-                    ) : (
-                        <Text style={styles.buttonText}>Ride Completed</Text>
-                    )}
-                </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            { marginBottom: insets.bottom + 90 },
+                            rideStatus === "started" || rideStatus === "completed"
+                                ? { backgroundColor: Colors.light.primary }
+                                : { backgroundColor: Colors.light.success },
+                        ]}
+                        onPress={() => {
+                            if (loadingRide) return; // prevent multiple taps
+                            if (rideStatus === "in_progress") {
+                                setRideStatus("started");
+                            } else if (rideStatus === "started") {
+                                rideStart(rideData?.rideId, rideData);
+                            } else if (rideStatus === "completed") {
+                                rideCompleted(rideData?.rideId, rideData);
+                            }
+                        }}
+                        activeOpacity={0.8}
+                    >
+                        {loadingRide ? (
+                            <ActivityIndicator color="#fff" size="small" />
+                        ) : rideStatus === "in_progress" ? (
+                            <Text style={styles.buttonText}>I’m Here</Text>
+                        ) : rideStatus === "started" ? (
+                            <Text style={styles.buttonText}>Start Ride</Text>
+                        ) : (
+                            <Text style={styles.buttonText}>Ride Completed</Text>
+                        )}
+                    </TouchableOpacity>
 
-            )
+                )
 
-            }
+                }
 
             </View>
-            
+
         </View>
     );
 };
