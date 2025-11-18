@@ -2,11 +2,13 @@
 import Button from "@/src/components/ui/Button ";
 import CustomInput from "@/src/components/ui/Input";
 import ModalDropdown from "@/src/components/ui/dropdown/ModalDropDown";
+import { useKeyboardPadding } from "@/src/hooks/useKeyboardPadding";
 import { useAppSelector } from "@/src/store/hooks";
 import { selectPersonalInfo } from "@/src/store/selectors/signup.selectors";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -122,7 +124,8 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null);
   const [openDropdown, setOpenDropdown] = useState<'city' | 'vehicleType' | null>(null);
-
+  const [tempPhoneNumber, setTempPhoneNumber] = useState("");
+  const { androidPadding } = useKeyboardPadding(0);
   const handleSubmit = (
     values: PersonalInfoFormValues,
     formikHelpers: FormikHelpers<PersonalInfoFormValues>
@@ -187,9 +190,10 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Phone Number</Text>
               <PhoneInput
-                value={values.phoneNumber}
+                value={tempPhoneNumber}
                 onChangePhoneNumber={(phoneNumber) => {
                   setFieldValue("phoneNumber", phoneNumber, true);
+                  setTempPhoneNumber(phoneNumber);
                 }}
                 selectedCountry={selectedCountry}
                 onChangeSelectedCountry={(country) => {
@@ -197,7 +201,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
                   console.log("📍 Country Code:", country?.callingCode);
                 }}
                 placeholder="Phone number"
-                defaultCountry="PK"
+                defaultCountry="QA"
                 phoneInputStyles={{
                   container: styles.phoneContainer,
                   flagContainer: styles.flagContainer,
@@ -208,6 +212,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
                   input: styles.phoneInput,
                 }}
                 modalStyles={{
+                  modal:{marginBottom: Platform.OS === "android" ? androidPadding : 0},
                   backdrop: {},
                   countryName: styles.countryName,
                   searchInput: styles.searchInput,

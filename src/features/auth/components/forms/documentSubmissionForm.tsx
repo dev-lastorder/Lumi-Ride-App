@@ -7,6 +7,7 @@ import { types as DocumentTypes, pick } from "@react-native-documents/picker";
 import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { isFileSizeValid } from "@/src/utils/helper";
 import ImagePicker from "react-native-image-crop-picker";
 import FileUploadInput, { UploadedFile } from "../common/FileUploadInput";
 
@@ -54,15 +55,15 @@ const DocumentSubmissionForm: React.FC<DocumentSubmissionFormProps> = ({
     UploadedFile[]
   >(
     initialValues?.vehicleRegistrationFront ||
-      savedDocuments.vehicleRegistrationFront ||
-      []
+    savedDocuments.vehicleRegistrationFront ||
+    []
   );
   const [vehicleRegistrationBack, setVehicleRegistrationBack] = useState<
     UploadedFile[]
   >(
     initialValues?.vehicleRegistrationBack ||
-      savedDocuments.vehicleRegistrationBack ||
-      []
+    savedDocuments.vehicleRegistrationBack ||
+    []
   );
 
   const [companyRegistration, setCompanyRegistration] = useState<UploadedFile[]>(
@@ -160,6 +161,18 @@ const DocumentSubmissionForm: React.FC<DocumentSubmissionFormProps> = ({
       const results = await pick({
         type: [DocumentTypes.pdf, DocumentTypes.images],
       });
+
+      console.log("before uploading result:", results)
+      if (!results || results.length === 0) return;
+
+      const file = results[0]; // pick first file
+
+      // ✅ File size validation
+      if (!isFileSizeValid(file)) {
+        Alert.alert("File too large", "File size should be less than 5 MB");
+        setUploading(null);
+        return; // ❌ stop here
+      }
 
       if (results && results.length > 0) {
         simulateProgress(() => {
@@ -402,7 +415,7 @@ const DocumentSubmissionForm: React.FC<DocumentSubmissionFormProps> = ({
           files={companyRegistration}
           onUpload={() =>
             handleDocumentPick(setCompanyRegistration, "companyRegistration")
-            
+
           }
           onRemove={(i) =>
             handleRemoveFile(setCompanyRegistration, i, "companyRegistration")

@@ -32,6 +32,15 @@ export const rideRequestsService = {
     try {
       // Todo: need to get latitude and longitude from driver location slice
       const { latitude, longitude } = state.driverLocation;
+        if (
+    latitude === null ||
+    longitude === null ||
+    latitude === undefined ||
+    longitude === undefined
+  ) {
+    console.error("Driver location not available yet!");
+    return [];
+  }
       // const latitude = 33.7039508;
       // const longitude = 72.9799375;
 
