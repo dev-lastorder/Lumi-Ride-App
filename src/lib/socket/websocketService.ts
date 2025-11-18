@@ -19,8 +19,8 @@ interface IReceivedMessage {
 
 const IS_DEV = __DEV__;
 const WEBSOCKET_URL = IS_DEV 
-  ? 'https://api-nestjs-enatega.up.railway.app' 
-  : 'https://api-nestjs-enatega.up.railway.app';
+  ? 'https://ride-server.lumi.qa' 
+  : 'https://ride-server.lumi.qa';
 
 
 

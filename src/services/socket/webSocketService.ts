@@ -30,8 +30,8 @@ interface IRiderLocation {
 // WebSocket configuration
 const IS_DEV = __DEV__;
 const WEBSOCKET_URL = IS_DEV
-  ? "https://api-nestjs-enatega.up.railway.app"
-  : "https://api-nestjs-enatega.up.railway.app";
+  ? "https://ride-server.lumi.qa"
+  : "https://ride-server.lumi.qa";
 
 class WebSocketService {
   private socket: Socket | null = null;
@@ -143,6 +143,10 @@ class WebSocketService {
           //   }
           // );
         });
+        this.socket.on("ride-started", async(data)=>{
+
+          console.log("ride have start :", data)
+        })
 
         this.socket.on("bid-accepted", async (data) => {
           console.log("🎯 Bid accepted event received:", data);
@@ -236,6 +240,39 @@ class WebSocketService {
 
     console.log("📤 Emitting place-bid event:", payload);
     this.socket.emit("place-bid", payload);
+  }
+
+
+  startRide ( payload : {
+    rideId:string;
+    genericUserId:string
+
+  }): void {
+
+     if (!this.socket || !this.isConnected){
+       console.error("❌ Cannot start ride— WebSocket not connected");
+      return;
+     }
+
+     console.log("📤 Emitting Start ride  event:", payload);
+     this.socket.emit("ride-started", payload);
+
+  }
+
+  rideCompleted ( payload : {
+    rideId:string;
+    genericUserId:string
+
+  }): void {
+
+     if (!this.socket || !this.isConnected){
+       console.error("❌ Cannot start ride— WebSocket not connected");
+      return;
+     }
+
+     console.log("📤 Emitting ride completed  event:", payload);
+     this.socket.emit("ride-completed", payload);
+
   }
 
   // onBidAccepted(callback: (data: any) => void): () => void {

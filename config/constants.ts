@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-    BASE_URL: 'https://api-nestjs-enatega.up.railway.app',
+    BASE_URL: 'https://ride-server.lumi.qa',
     ENDPOINTS: {
       GET_TOKEN: '/test/twilio/token',
       VOICE_WEBHOOK: '/test/twilio/voice'
