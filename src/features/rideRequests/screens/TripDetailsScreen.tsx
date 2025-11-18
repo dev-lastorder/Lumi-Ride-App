@@ -1,6 +1,7 @@
 import twilioService from "@/services/twilio.service";
 import { Colors } from "@/src/constants";
 import { useDriverLocation } from "@/src/hooks/useDriverLocation";
+import { webSocketService } from "@/src/services/socket/webSocketService";
 import { setOnGoingRideData } from "@/src/store/slices/onGoingRideSlice";
 import { RootState } from "@/src/store/store";
 import Feather from '@expo/vector-icons/Feather';
@@ -89,13 +90,19 @@ export const TripDetailsScreen: React.FC = () => {
         }
     };
 
-    const rideStart = async (rideId: any) => {
-        console.log("calling ride start:", rideId)
-        setLoadingRide(true);
+    const rideStart = async (rideId: any, rideData:any ) => {
+        console.log("calling ride start:", rideData)
+        
+
 
         try {
             const data = await rideRequestsService.startMyRide(rideId);
             console.log("my ride data", data)
+            webSocketService.startRide({
+                rideId:rideId,
+                genericUserId:rideData?.passengerUser?.id ,
+            })
+
             if (data?.message === 'Ride status updated to IN_PROGRESS successfully') {
                 setRideStatus("completed");
                 setLoadingRide(false);
@@ -108,13 +115,18 @@ export const TripDetailsScreen: React.FC = () => {
             setLoadingRide(false);
         }
     }
-    const rideCompleted = async (rideId: any) => {
+    const rideCompleted = async (rideId: any,  rideData:any ) => {
         console.log("calling ride start:", rideId)
 
         try {
             const data = await rideRequestsService.completeMyRide(rideId);
             console.log("my ride data", data);
             setLoadingRide(true)
+
+              webSocketService.rideCompleted({
+                rideId:rideId,
+                genericUserId:rideData?.passengerUser?.id ,
+            })
 
             if (data?.message === "Ride completed successfully") {
                 router.push("/(tabs)/(rideRequests)");
@@ -483,9 +495,9 @@ Drop-off → https://www.google.com/maps?q=${rideData.dropoff?.lat},${rideData.d
                         if (rideStatus === "in_progress") {
                             setRideStatus("started");
                         } else if (rideStatus === "started") {
-                            rideStart(rideData?.rideId);
+                            rideStart(rideData?.rideId , rideData);
                         } else if (rideStatus === "completed") {
-                            rideCompleted(rideData?.rideId);
+                            rideCompleted(rideData?.rideId, rideData);
                         }
                     }}
                     activeOpacity={0.8}
