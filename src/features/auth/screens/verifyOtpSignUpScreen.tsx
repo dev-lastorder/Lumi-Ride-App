@@ -153,7 +153,7 @@ const VerifyOtpSignUpScreen: React.FC = () => {
             <View style={styles.titleWrapper}>
               <Title
                 heading="OTP"
-                subheading="We have sent OTP code verification to your mobile no"
+                subheading="We have sent OTP code verification to your mobile number"
                 containerStyle={styles.titleContainer}
               />
             </View>
