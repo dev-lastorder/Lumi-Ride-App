@@ -263,7 +263,7 @@ const requestPermissionAndFetchLocation = useCallback(
 
 
   // 🎯 Start only foreground tracking
-  const startLocationTracking = useCallback(async () => {
+  const startLocationTracking = useCallback(async (riderId:string, customerId:string) => {
     try {
       console.log("🔄 Starting FOREGROUND location tracking...");
 
@@ -294,8 +294,8 @@ const requestPermissionAndFetchLocation = useCallback(
           if (webSocketService.isSocketConnected()) {
             const riderLocationParams: IRiderLocation = {
               // Todo: replace with actual IDs
-              riderId: "rider123",
-              customerId: "customer456",
+              riderUserId:riderId,
+              customerUserId: customerId,
               latitude: newLocation.coords.latitude,
               longitude: newLocation.coords.longitude,
             };

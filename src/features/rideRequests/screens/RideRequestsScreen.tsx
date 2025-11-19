@@ -67,18 +67,19 @@ export const RideRequestsScreen: React.FC = () => {
   const [openSwipeableId, setOpenSwipeableId] = useState<string | null>(null);
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
   const appState = useRef(AppState.currentState);
-
+  const rideDetailModalRef = useRef<any>(null);
   const myRideRequest = useSelector(
     (state: RootState) => state.auth.mainTablesData
   );
 
-  const ApprovalStatus = useSelector((state: RootState) => state.auth.riderProfile);
+  const ApprovalStatus = useSelector(
+    (state: RootState) => state.auth.riderProfile
+  );
   const isDriverApproved = myRideRequest?.[0]?.data?.is_approved;
   const rejectionReason = myRideRequest?.[0]?.data?.rejection_reason;
   const isPending =
     ApprovalStatus?.status === "pending" ||
     myRideRequest?.[0]?.data?.status === "pending";
-
 
   const { width: windowWidth } = useWindowDimensions();
   const cardRailWidth = useMemo(
@@ -241,7 +242,13 @@ export const RideRequestsScreen: React.FC = () => {
   const handleCustomFareOffer = (fare: number) => {
     console.log("Custom fare offer:", fare);
     setFareInputVisible(false);
-    setTimeout(() => setModalVisible(true), 100);
+    setTimeout(() => {
+      setModalVisible(true), 100;
+      //CUSTOM_FARE
+      if (rideDetailModalRef.current) {
+        rideDetailModalRef.current?.handleSelectedFare(fare);
+      }
+    });
   };
 
   const handleSwipeableWillOpen = (id: string) => {
@@ -391,7 +398,10 @@ export const RideRequestsScreen: React.FC = () => {
 
           {/* Upcoming Ride Card */}
           {!isDriverApproved ? (
-            <AccountSuspendedScreen reason={rejectionReason || "N/A"} isPending={isPending} />
+            <AccountSuspendedScreen
+              reason={rejectionReason || "N/A"}
+              isPending={isPending}
+            />
           ) : (
             !isRefetchingScheduledRideRequests &&
             driverStatus === "online" &&
@@ -467,6 +477,7 @@ export const RideRequestsScreen: React.FC = () => {
               />
 
               <RideDetailsModal
+                ref={rideDetailModalRef}
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 rideRequest={selectedRide}

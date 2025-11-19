@@ -82,8 +82,10 @@ const PaymentLoader: React.FC<Props> = ({ amount, onStartPayment }) => {
 
         // Instead of just onStartPayment(url),
         // also pass the POST data we want to send to QNB
+        const finalUrl=`${BASE_URL}${result.formRedirectUrl}` //result.paymentUrl,
+        console.log("Final Payment URL:", finalUrl);
         onStartPayment({
-          url: result.paymentUrl,
+          url:finalUrl,
           postData: paymentData,
         });
       } else {

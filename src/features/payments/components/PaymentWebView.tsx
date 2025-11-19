@@ -253,7 +253,7 @@ const PaymentWebView = ({
         // domStorageEnabled={true}
         // originWhitelist={['*']}
         mixedContentMode="always"
-        userAgent="Mozilla/5.0"
+        userAgent="LumiApp/1.0 LumiSec-UA/a83f91c2e9b74d12"
       />
     </View>
   );

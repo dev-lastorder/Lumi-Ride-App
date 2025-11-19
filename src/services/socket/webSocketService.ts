@@ -21,8 +21,8 @@ interface IReceivedMessage {
 }
 
 interface IRiderLocation {
-  riderId: string;
-  customerId: string;
+  riderUserId: string;
+  customerUserId: string;
   latitude: number;
   longitude: number;
 }
@@ -154,6 +154,7 @@ class WebSocketService {
         this.socket.on("ride-cancelled", async(data)=>{
 
           console.log("ride have start :", data)
+            router.push("/(tabs)/(rideRequests)/rideRequest");
         })
 
         this.socket.on("bid-accepted", async (data) => {

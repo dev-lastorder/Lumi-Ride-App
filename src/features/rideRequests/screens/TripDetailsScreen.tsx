@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ProfileModal from "../components/ProfileModal";
 import RatingModal from "../components/RatingModal";
 import ReviewSubmittedModal from "../components/ReviewSubmittedModal";
+import RideMap from "../components/RideMap";
 import rideRequestsService from "../services";
 import Shimmer from "../utils/Shimmer";
 
@@ -257,7 +258,7 @@ export const TripDetailsScreen: React.FC = () => {
         useCallback(() => {
             // Invoked whenever the route is focused.
             console.log("Hello, I'm focused!");
-            startLocationTracking();
+            startLocationTracking(driverId,customerId);
 
             // Return function is invoked whenever the route gets out of focus.
             return () => {
@@ -331,10 +332,10 @@ export const TripDetailsScreen: React.FC = () => {
     return (
         <View style={{ flex: 1, }}>
 
-            {/* <RideMap
+            <RideMap
                 origin={origin}
                 destination={destination}
-                rideRequest={rideData} /> */}
+                rideRequest={rideData} />
 
 
             {rideStatus === 'in_progess' && (
