@@ -21,18 +21,6 @@ export const useSendSupportMessage = () => {
 
     // Optimistic update - show message immediately
     onMutate: async (messageData: SendSupportMessageDto) => {
-      const chatBoxId = `temp-support-${messageData.senderId}-${messageData.receiverId}`;
-      
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ 
-        queryKey: supportChatQueryKeys.messages(chatBoxId) 
-      });
-
-      // Snapshot previous value
-      const previousMessages = queryClient.getQueryData(
-        supportChatQueryKeys.messages(chatBoxId)
-      );
-
       // Create optimistic message
       const optimisticMessage: SupportChatMessage = {
         id: `temp-${Date.now()}`,
@@ -41,33 +29,28 @@ export const useSendSupportMessage = () => {
         receiverId: messageData.receiverId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        chatBoxId: chatBoxId,
+        chatBoxId: 'pending',
       };
 
-      // Optimistically update cache
-      queryClient.setQueryData(
-        supportChatQueryKeys.messages(chatBoxId),
-        (old: SupportChatMessage[] | undefined) => [...(old || []), optimisticMessage]
-      );
-
-      return { previousMessages, optimisticMessage };
+      return { optimisticMessage };
     },
 
-    // On success - replace optimistic with real message
-    onSuccess: (data: SupportChatMessage, variables: SendSupportMessageDto, context: any) => {
+    // On success - update cache with real message
+    onSuccess: (data: SupportChatMessage, variables: SendSupportMessageDto) => {
       console.log('✅ useSendSupportMessage - Success:', data);
       
       const realChatBoxId = data.chatBoxId;
       
-      // Replace optimistic message with real one
+      // Set the real message in cache
       queryClient.setQueryData(
         supportChatQueryKeys.messages(realChatBoxId),
         (old: SupportChatMessage[] | undefined) => {
-          if (!old || !context) return [data];
-          
-          return old.map(msg => 
-            msg.id === context.optimisticMessage.id ? data : msg
-          );
+          const existing = old || [];
+          // Check if message already exists
+          if (existing.some(msg => msg.id === data.id)) {
+            return existing;
+          }
+          return [...existing, data];
         }
       );
 
@@ -76,22 +59,13 @@ export const useSendSupportMessage = () => {
         queryKey: supportChatQueryKeys.userChats(variables.senderId) 
       });
       queryClient.invalidateQueries({ 
-        queryKey: supportChatQueryKeys.messages(realChatBoxId) 
+        queryKey: supportChatQueryKeys.all
       });
     },
 
-    // On error - rollback optimistic update
-    onError: (error: Error, variables: SendSupportMessageDto, context: any) => {
+    // On error - show error to user
+    onError: (error: Error) => {
       console.error('❌ useSendSupportMessage - Error:', error);
-      
-      // Rollback to previous state
-      if (context?.previousMessages) {
-        const chatBoxId = `temp-support-${variables.senderId}-${variables.receiverId}`;
-        queryClient.setQueryData(
-          supportChatQueryKeys.messages(chatBoxId), 
-          context.previousMessages
-        );
-      }
 
       // Show error to user
       Alert.alert(
@@ -102,11 +76,12 @@ export const useSendSupportMessage = () => {
     },
 
     // Always refetch after success or error
-    onSettled: (data: SupportChatMessage | undefined, error: Error | null, variables: SendSupportMessageDto) => {
-      const chatBoxId = data?.chatBoxId || `temp-support-${variables.senderId}-${variables.receiverId}`;
-      queryClient.invalidateQueries({ 
-        queryKey: supportChatQueryKeys.messages(chatBoxId) 
-      });
+    onSettled: (data: SupportChatMessage | undefined) => {
+      if (data?.chatBoxId) {
+        queryClient.invalidateQueries({ 
+          queryKey: supportChatQueryKeys.messages(data.chatBoxId) 
+        });
+      }
     },
   });
 };

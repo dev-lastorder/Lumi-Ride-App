@@ -82,25 +82,46 @@ const support = () => {
   const {
     data: chatData,
     isLoading: isInitializing,
-    error: initError,
     isSuccess: isChatInitialized,
+    error: initError,
   } = useInitializeSupportChat(driverId, {
-    enabled: !!driverId, // Always fetch when driverId exists
+    enabled: !!driverId,
   });
 
-  // 2️⃣ Fetch message history - ONLY runs when we have a REAL chatBoxId (not temp)
-  // This is the key fix - it fetches persisted messages from backend
+  // Debug logs
+  useEffect(() => {
+    console.log('🔍 Support Chat Debug:');
+    console.log('   driverId:', driverId);
+    console.log('   isInitializing:', isInitializing);
+    console.log('   isChatInitialized:', isChatInitialized);
+    console.log('   initError:', initError);
+    console.log('   chatData:', chatData);
+  }, [driverId, isInitializing, isChatInitialized, initError, chatData]);
+
+  // Fallback: if loading takes too long, force show UI
+  const [showUI, setShowUI] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log("⚠️ Loading timeout - forcing UI display");
+      setShowUI(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isChatInitialized) {
+      setShowUI(true);
+    }
+  }, [isChatInitialized]);
+
+  // 2️⃣ Fetch message history - ONLY runs when we have a REAL chatBoxId
   const {
     data: historyMessages = [],
     isLoading: isLoadingMessages,
     refetch: refetchMessages,
   } = useGetSupportMessages(
     chatBoxId,
-    // Enable when:
-    // - Chat is initialized
-    // - We have a chatBoxId
-    // - ChatBoxId is NOT temp (real chats only)
-    isChatInitialized && !!chatBoxId && !chatBoxId?.startsWith("temp-")
+    isChatInitialized && !!chatBoxId
   );
 
   // 3️⃣ Send message mutation
@@ -152,26 +173,31 @@ const support = () => {
   // CRITICAL FIX: Set chatBoxId and refetch messages when chat initializes
   // ============================================
   useEffect(() => {
-    if (isChatInitialized && chatData?.chatBox) {
-      const newChatBoxId = chatData.chatBox.id;
+    if (isChatInitialized && chatData) {
+      if (chatData.chatBox) {
+        // Found existing opened chat
+        const newChatBoxId = chatData.chatBox.id;
 
-      console.log("✅ Support chat initialized");
-      console.log("📦 Chat Box ID:", newChatBoxId);
-      console.log(
-        "📦 Initial messages from init:",
-        chatData.messages?.length || 0
-      );
-      console.log("🔍 Is temp chat?", newChatBoxId.startsWith("temp-"));
+        console.log("✅ Support chat initialized - Found opened chat");
+        console.log("📦 Chat Box ID:", newChatBoxId);
+        console.log(
+          "📦 Initial messages from init:",
+          chatData.messages?.length || 0
+        );
 
-      setChatBoxId(newChatBoxId);
+        setChatBoxId(newChatBoxId);
 
-      // 🔥 KEY FIX: If this is a REAL chat (not temp), refetch messages
-      // This ensures we get the latest messages from backend when app reopens
-      if (!newChatBoxId.startsWith("temp-") && refetchMessages) {
-        console.log("🔄 Refetching messages for real chat...");
-        setTimeout(() => {
-          refetchMessages();
-        }, 500);
+        // Refetch messages to get latest
+        if (refetchMessages) {
+          console.log("🔄 Refetching messages for opened chat...");
+          setTimeout(() => {
+            refetchMessages();
+          }, 500);
+        }
+      } else {
+        // No opened chat found - will create on first message
+        console.log("ℹ️ No opened chat found - will create on first message");
+        setChatBoxId(null);
       }
     }
   }, [isChatInitialized, chatData]);
@@ -180,7 +206,7 @@ const support = () => {
   // WebSocket connection - Connect once when initialized
   // ============================================
   useEffect(() => {
-    if (!driverId || !chatBoxId) {
+    if (!driverId) {
       return;
     }
 
@@ -394,6 +420,24 @@ const support = () => {
 
     console.log("📤 Sending support message:", message);
 
+    // Add optimistic message immediately
+    const optimisticMsg = {
+      id: `temp-${Date.now()}`,
+      text: message.trim(),
+      senderId: driverId,
+      receiverId: SUPPORT_TEAM_ID,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      chatBoxId: chatBoxId || 'pending',
+    };
+
+    setRealtimeMessages((prev) => [...prev, optimisticMsg]);
+
+    // Scroll immediately
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+
     sendMessage(
       {
         senderId: driverId,
@@ -401,16 +445,28 @@ const support = () => {
         text: message.trim(),
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           console.log("✅ Support message sent successfully");
 
-          // Scroll to bottom after sending
-          setTimeout(() => {
-            flatListRef.current?.scrollToEnd({ animated: true });
-          }, 100);
+          // Update chatBoxId if it was null (first message)
+          if (!chatBoxId && data.chatBoxId) {
+            console.log("🆕 New chat box created:", data.chatBoxId);
+            setChatBoxId(data.chatBoxId);
+          }
+
+          // Replace optimistic with real message
+          setRealtimeMessages((prev) => 
+            prev.map(msg => msg.id === optimisticMsg.id ? data : msg)
+          );
         },
         onError: (error: any) => {
           console.error("❌ Send support message error:", error);
+          
+          // Remove optimistic message on error
+          setRealtimeMessages((prev) => 
+            prev.filter(msg => msg.id !== optimisticMsg.id)
+          );
+
           Alert.alert(
             "Error",
             "Failed to send message to support. Please try again."
@@ -444,22 +500,13 @@ const support = () => {
     );
   }
 
-  if (isInitializing) {
+  if (isInitializing && !showUI) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#DAD5FB" />
         <CustomText style={{ marginTop: 12 }}>
           Connecting to support...
         </CustomText>
-      </View>
-    );
-  }
-
-  if (initError) {
-    return (
-      <View style={styles.errorContainer}>
-        <CustomText>Failed to connect to support</CustomText>
-        <Button title="Retry" variant="primary" onPress={() => router.back()} />
       </View>
     );
   }
