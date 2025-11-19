@@ -7,7 +7,7 @@ import { types as DocumentTypes, pick } from "@react-native-documents/picker";
 import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { isFileSizeValid } from "@/src/utils/helper";
+import { isFileSizeValid, persistFile } from "@/src/utils/helper";
 import ImagePicker from "react-native-image-crop-picker";
 import FileUploadInput, { UploadedFile } from "../common/FileUploadInput";
 
@@ -158,35 +158,47 @@ const DocumentSubmissionForm: React.FC<DocumentSubmissionFormProps> = ({
   ) => {
     try {
       setUploading(field);
+
       const results = await pick({
         type: [DocumentTypes.pdf, DocumentTypes.images],
       });
 
-      console.log("before uploading result:", results)
-      if (!results || results.length === 0) return;
+      if (!results || results.length === 0) {
+        setUploading(null);
+        return;
+      }
 
-      const file = results[0]; // pick first file
+      let file = results[0];
 
-      // ✅ File size validation
+      console.log("Picked file:", file.uri);
+
+      // ⛔ Fix size check
       if (!isFileSizeValid(file)) {
         Alert.alert("File too large", "File size should be less than 5 MB");
         setUploading(null);
-        return; // ❌ stop here
+        return;
       }
 
-      if (results && results.length > 0) {
-        simulateProgress(() => {
-          const file = makeDocumentObj(results[0]);
-          setter([file]);
-          validateField(field, [file]);
-        });
-      }
+      // ⛔ FIX: Persist temp iOS file
+      file = await persistFile(file);
+
+      console.log("Persistent file:", file.uri);
+
+      // Continue with your logic
+      simulateProgress(() => {
+        const uploadedObj = makeDocumentObj(file);
+        setter([uploadedObj]);
+        validateField(field, [uploadedObj]);
+      });
+
     } catch (err: any) {
+      console.log("Pick error", err);
       setUploading(null);
       if (err?.name === "DocumentPickerCanceled") return;
       Alert.alert("Error", "Failed to pick document");
     }
   };
+
 
   const handleRemoveFile = (
     setter: React.Dispatch<React.SetStateAction<UploadedFile[]>>,

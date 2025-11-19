@@ -1,4 +1,6 @@
+import * as FileSystem from "expo-file-system/legacy";
 import { Linking } from "react-native";
+
 
 export function handleTruncate(
   maxLength: number,
@@ -116,3 +118,21 @@ export const openPrivacy = () => {
 
   }
 }
+
+
+ export const persistFile = async (file: any) => {
+  const DOCUMENT_DIR = FileSystem.documentDirectory;
+
+  const extension = file.name?.split(".").pop() || "pdf";
+  const newPath = `${DOCUMENT_DIR}${Date.now()}.${extension}`;
+
+  await FileSystem.copyAsync({
+    from: file.uri,
+    to: newPath,
+  });
+
+  return {
+    ...file,
+    uri: newPath,
+  };
+};
