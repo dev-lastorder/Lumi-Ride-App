@@ -147,6 +147,14 @@ class WebSocketService {
 
           console.log("ride have start :", data)
         })
+         this.socket.on("ride-completed", async(data)=>{
+
+          console.log("ride have start :", data)
+        })
+        this.socket.on("ride-cancelled", async(data)=>{
+
+          console.log("ride have start :", data)
+        })
 
         this.socket.on("bid-accepted", async (data) => {
           console.log("🎯 Bid accepted event received:", data);

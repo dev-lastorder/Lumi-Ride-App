@@ -73,7 +73,6 @@ export const RideRequestsScreen: React.FC = () => {
   );
 
   const ApprovalStatus = useSelector((state: RootState) => state.auth.riderProfile);
-  console.log("ApprovalStatus", ApprovalStatus)
   const isDriverApproved = myRideRequest?.[0]?.data?.is_approved;
   const rejectionReason = myRideRequest?.[0]?.data?.rejection_reason;
   const isPending =
@@ -161,6 +160,7 @@ export const RideRequestsScreen: React.FC = () => {
     setIsRefreshing(true);
     try {
       await refetch();
+      await fetchActiveRide();
     } catch (error) {
       console.error("Error refreshing ride requests:", error);
     } finally {

@@ -2,18 +2,19 @@ import { Colors } from "@/src/constants";
 import { RootState } from "@/src/store/store";
 import React, { useEffect, useState } from "react";
 import {
-    Dimensions,
-    Image,
-    Keyboard,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
@@ -25,12 +26,14 @@ interface RatingModalProps {
   onClose: () => void;
   onSubmit: (data: { rating: number; comment: string }) => void;
   rideData: any;
+  loading: boolean
 }
 
 const RatingModal: React.FC<RatingModalProps> = ({
   visible,
   onClose,
   onSubmit,
+  loading,
   rideData,
 }) => {
   const [rating, setRating] = useState(0);
@@ -133,7 +136,11 @@ const RatingModal: React.FC<RatingModalProps> = ({
                 ]}
                 onPress={() => onSubmit({ rating, comment })}
               >
-                <Text style={styles.buttonText}>Submit</Text>
+                {loading ? (
+                  <ActivityIndicator color="#fff" /> // white spinner
+                ) : (
+                  <Text style={styles.buttonText}>Submit</Text>
+                )}
               </TouchableOpacity>
             </View>
           </ScrollView>
