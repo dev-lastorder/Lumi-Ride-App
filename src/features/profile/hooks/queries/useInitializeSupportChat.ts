@@ -13,7 +13,7 @@ export const supportChatQueryKeys = {
 
 
 interface InitializeSupportChatResponse {
-  chatBox: SupportChatBox;
+  chatBox: SupportChatBox | null;
   messages: SupportChatMessage[];
 }
 

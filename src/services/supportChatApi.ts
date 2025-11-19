@@ -148,109 +148,74 @@ export const supportChatApi = {
     try {
       console.log("📥 Fetching all support chats for userId:", userId);
 
-      // Build query params
-      const params: any = {};
-      if (submittedBy && submittedBy.length > 0) {
-        params.SubmittedBy = submittedBy;
-      }
-      if (statusFilter && statusFilter.length > 0) {
-        params.statusFilter = statusFilter;
-      }
-
-      const response = await apiClient.get(`/api/v1/support-chat/${userId}`, {
-        params,
-      });
+      const response = await apiClient.get(`/api/v1/support-chat/${userId}`);
       const chatData = response.data;
 
-      const chatList = chatData?.chatList || [];
+      console.log("📦 Raw response:", JSON.stringify(chatData));
+
+      const chatList = chatData?.chatbox || [];
 
       console.log("✅ Fetched", chatList.length, "support chats");
       return chatList;
-    } catch (error) {
-      console.error("❌ Failed to get support chats:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to get support chats:", error?.response?.data || error.message);
       return [];
     }
   },
 
-  // 4️⃣ Initialize support chat (find existing or create temp)
+  // 4️⃣ Initialize support chat (find latest opened chat)
   initializeSupportChat: async (
     userId: string,
     supportId: string = SUPPORT_TEAM_ID
-  ): Promise<{ chatBox: SupportChatBox; messages: SupportChatMessage[] }> => {
+  ): Promise<{ chatBox: SupportChatBox | null; messages: SupportChatMessage[] }> => {
     try {
       console.log("🚀 Initializing support chat");
       console.log("   User ID:", userId);
       console.log("   Support ID:", supportId);
 
-      // Connect to WebSocket if not connected
-      if (
-        !webSocketService.isSocketConnected() ||
-        webSocketService.getCurrentUserId() !== userId
-      ) {
-        await webSocketService.connect(userId);
-      }
-
       // Get all support chats for the user
       const allChats = await supportChatApi.getAllChats(userId);
 
-      // Find existing chat with support team
-      // Backend returns camelCase (senderId, receiverId)
-      const existingChat = allChats.find((chat) => {
-        // Handle both camelCase and snake_case for compatibility
+      // Find latest OPENED chat with support team
+      const openedChats = allChats.filter((chat) => {
         const chatSenderId = (chat as any).senderId || chat.senderId;
         const chatReceiverId = (chat as any).receiverId || chat.receiverId;
+        const chatStatus = chat.status;
 
         return (
-          (chatSenderId === userId && chatReceiverId === supportId) ||
-          (chatSenderId === supportId && chatReceiverId === userId)
+          ((chatSenderId === userId && chatReceiverId === supportId) ||
+          (chatSenderId === supportId && chatReceiverId === userId)) &&
+          chatStatus === "opened"
         );
       });
 
-      let chatBox: SupportChatBox;
-      let messages: SupportChatMessage[] = [];
+      // Sort by updatedAt to get the latest
+      openedChats.sort((a, b) => 
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
 
-      if (existingChat) {
-        chatBox = existingChat;
-        console.log("✅ Found existing support chat:", chatBox.id);
+      const latestOpenedChat = openedChats[0];
+
+      if (latestOpenedChat) {
+        console.log("✅ Found latest opened support chat:", latestOpenedChat.id);
 
         // Load message history
+        let messages: SupportChatMessage[] = [];
         try {
-          messages = await supportChatApi.getMessages(chatBox.id);
+          messages = await supportChatApi.getMessages(latestOpenedChat.id);
         } catch (error) {
           console.log("⚠️ Could not load support chat history");
-          messages = [];
         }
-      } else {
-        // Create temporary chatBox (will be created on first message)
-        chatBox = {
-          id: `temp-support-${userId}-${supportId}`,
-          senderId: userId,
-          receiverId: supportId,
-          title: "Support Chat",
-          status: "opened",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        messages = [];
-        console.log("✅ Created temporary support chat box");
-      }
 
-      return { chatBox, messages };
+        return { chatBox: latestOpenedChat, messages };
+      } else {
+        // No opened chat found - return null (don't create temp)
+        console.log("ℹ️ No opened support chat found");
+        return { chatBox: null, messages: [] };
+      }
     } catch (error) {
       console.error("❌ Failed to initialize support chat:", error);
-
-      // Fallback: Always return a temp chat box
-      const fallbackChatBox: SupportChatBox = {
-        id: `temp-support-${userId}-${SUPPORT_TEAM_ID}`,
-        senderId: userId,
-        receiverId: SUPPORT_TEAM_ID,
-        title: "Support Chat",
-        status: "opened",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      return { chatBox: fallbackChatBox, messages: [] };
+      return { chatBox: null, messages: [] };
     }
   },
 
