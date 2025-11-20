@@ -1,5 +1,6 @@
 // src/features/auth/hooks/mutations/useVerifySignupOtp.ts
 import { API_ENDPOINTS, apiClient } from '@/src/lib/axios';
+import firebaseMessagingService from '@/src/services/fcmService';
 import { useAppDispatch } from '@/src/store/hooks';
 import { setAuth } from '@/src/store/slices/auth.slice';
 import { resetSignup } from '@/src/store/slices/signup.slice';
@@ -55,15 +56,32 @@ export const useVerifySignupOtp = () => {
 
   return useMutation({
     mutationFn: async (data: VerifySignupOtpRequest) => {
-      console.log('📤 Verifying signup OTP:', { ...data, sentOtp: '****' });
-      
+      console.log('📤 Verifying signup OTP:', {
+        ...data,
+        sentOtp: '****'
+      });
+
+      // 1️⃣ Get FCM token
+      const fcmToken = await firebaseMessagingService.getDeviceToken();
+      console.log("📲 FCM Token for Signup Verify:", fcmToken);
+
+      // 2️⃣ Attach FCM token into payload
+      const payload = {
+        ...data,
+        device_push_token: fcmToken ?? null,
+      };
+
+      console.log("📤 Final Signup OTP Verify Payload:", payload);
+
+      // 3️⃣ Send final payload
       const response = await apiClient.post<VerifySignupOtpResponse>(
         API_ENDPOINTS.LUMI_RIDER_AUTH.SIGNUP_VERIFY_OTP,
-        data
+        payload
       );
-      
+
       return response.data;
     },
+
     onSuccess: (data) => {
       console.log('✅ Account created successfully!');
       console.log('🔐 Token received');
@@ -89,11 +107,11 @@ export const useVerifySignupOtp = () => {
             availabilityStatus: data.rider.availabilityStatus,
             is_onboarding_completed: data.rider.is_onboarding_completed,
             is_approved: data.rider.is_approved,
-            
-            
+
+
           },
 
-          mainTablesData:[],
+          mainTablesData: [],
         })
       );
 
