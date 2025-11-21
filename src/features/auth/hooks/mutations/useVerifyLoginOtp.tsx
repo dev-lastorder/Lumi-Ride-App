@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, apiClient } from '@/src/lib/axios';
+import firebaseMessagingService from '@/src/services/fcmService';
 import { useAppDispatch } from '@/src/store/hooks';
 import { setAuth } from '@/src/store/slices/auth.slice';
 import { useMutation } from '@tanstack/react-query';
@@ -29,19 +30,35 @@ export const useVerifyLoginOtp = () => {
 
   return useMutation({
     mutationFn: async (data: VerifyLoginOtpRequest) => {
-      console.log('📤 Verifying login OTP:', { 
+      console.log('📤 Verifying login OTP:', {
         userId: data.userId,
-        otp: '****', 
-        login_as: data.login_as 
+        otp: '****',
+        login_as: data.login_as
       });
-      
+
+      // 1️⃣ Get FCM token
+      const fcmToken = await firebaseMessagingService.getDeviceToken();
+      console.log("📲 FCM Token for OTP Verify:", fcmToken);
+
+      // 2️⃣ Inject into request payload
+      const payload = {
+        ...data,
+        device_push_token: fcmToken ?? null,
+      };
+
+      console.log("📤 Final OTP verify payload:", payload);
+
+      // 3️⃣ Send updated payload
       const response = await apiClient.post<VerifyLoginOtpResponse>(
         API_ENDPOINTS.AUTH.LOGIN_VERIFY_OTP,
-        data 
+        payload
       );
-      console.log("🚀 ~ useVerifyLoginOtp ~ response:", response.data)
-      
+
+      console.log("🚀 ~ useVerifyLoginOtp ~ response:", response.data);
+
       return response.data;
+
+
     },
     onSuccess: (data) => {
       console.log('✅ Login successful!');

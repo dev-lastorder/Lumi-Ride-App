@@ -32,15 +32,15 @@ export const rideRequestsService = {
     try {
       // Todo: need to get latitude and longitude from driver location slice
       const { latitude, longitude } = state.driverLocation;
-        if (
-    latitude === null ||
-    longitude === null ||
-    latitude === undefined ||
-    longitude === undefined
-  ) {
-    console.error("Driver location not available yet!");
-    return [];
-  }
+      if (
+        latitude === null ||
+        longitude === null ||
+        latitude === undefined ||
+        longitude === undefined
+      ) {
+        console.error("Driver location not available yet!");
+        return [];
+      }
       // const latitude = 33.7039508;
       // const longitude = 72.9799375;
 
@@ -61,11 +61,11 @@ export const rideRequestsService = {
         const stops =
           Array.isArray(item.stops) && item.stops.length > 0
             ? item.stops.map((stop: any) => ({
-                latitude: stop.lat ?? stop.dropoff?.lat ?? 0,
-                longitude: stop.lng ?? stop.dropoff?.lng ?? 0,
-                address:
-                  stop.address || stop.dropoff_location || "Stop Location",
-              }))
+              latitude: stop.lat ?? stop.dropoff?.lat ?? 0,
+              longitude: stop.lng ?? stop.dropoff?.lng ?? 0,
+              address:
+                stop.address || stop.dropoff_location || "Stop Location",
+            }))
             : [];
 
         return {
@@ -104,8 +104,8 @@ export const rideRequestsService = {
           rideType: item.is_hourly
             ? "hourly"
             : item.is_scheduled
-            ? "scheduled"
-            : "standard",
+              ? "scheduled"
+              : "standard",
           paymentMethod: item.payment_via?.toLowerCase?.() ?? "cash",
           specialInstructions: null,
           rideTypeId: item?.ride_type_id,
@@ -283,7 +283,7 @@ export const rideRequestsService = {
     console.log("📤 checkCurrency called with token:", token);
 
     try {
-      const response = await axios.get(`${API_BASE}/currency`, {
+      const response = await axios.get(`${API_BASE}/api/v1/currency`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
