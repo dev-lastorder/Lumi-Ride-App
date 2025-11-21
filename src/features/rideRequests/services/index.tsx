@@ -32,17 +32,17 @@ export const rideRequestsService = {
     try {
       // Todo: need to get latitude and longitude from driver location slice
       const { latitude, longitude } = state.driverLocation;
-      if (
-        latitude === null ||
-        longitude === null ||
-        latitude === undefined ||
-        longitude === undefined
-      ) {
-        console.error("Driver location not available yet!");
-        return [];
-      }
-      // const latitude = 33.7039508;
-      // const longitude = 72.9799375;
+        if (
+    latitude === null ||
+    longitude === null ||
+    latitude === undefined ||
+    longitude === undefined
+  ) {
+    console.error("Driver location not available yet!");
+    return [];
+  }
+    //   const latitude =  33.767144;
+    //  const longitude = 72.807414;
 
       const response = await axios.get(
         `${API_BASE}/api/v1/ride-vehicles/nearby/${latitude}/${longitude}/${radius}?radius=${radius}`,

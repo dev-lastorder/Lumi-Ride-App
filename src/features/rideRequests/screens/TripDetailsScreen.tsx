@@ -96,7 +96,7 @@ export const TripDetailsScreen: React.FC = () => {
 
     const rideStart = async (rideId: any, rideData: any) => {
         console.log("calling ride start:", rideData)
-
+  setLoadingRide(true);
 
 
         try {
@@ -121,6 +121,7 @@ export const TripDetailsScreen: React.FC = () => {
     }
     const rideCompleted = async (rideId: any, rideData: any) => {
         console.log("calling ride start:", rideId)
+         setLoadingRide(true);
 
         try {
             const data = await rideRequestsService.completeMyRide(rideId);
